@@ -1,3 +1,4 @@
+add_compile_definitions("DEBUG=$<CONFIG:Debug>")
 add_executable(Adventure WIN32 main.cpp)
 target_link_libraries(Adventure PRIVATE ImGui-SFML::ImGui-SFML)
 

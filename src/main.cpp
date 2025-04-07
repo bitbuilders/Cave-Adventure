@@ -5,7 +5,7 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 
-int main()
+int main(int argc, char* argv[])
 {
     auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "CMake SFML Project");
     window.setFramerateLimit(0);

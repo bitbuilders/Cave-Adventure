@@ -5,15 +5,23 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 
+#include "Game/Game.h"
+
 int main(int argc, char* argv[])
 {
-    auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "CMake SFML Project");
+    auto window = sf::RenderWindow(
+        sf::VideoMode({1920u, 1080u}),
+        "Adventure",
+        sf::Style::Default,
+        sf::State::Windowed);
     window.setFramerateLimit(0);
-    ImGui::SFML::Init(window);
+    if (!ImGui::SFML::Init(window))
+    {
+        return 1;
+    }
 
-    auto circle = sf::CircleShape(200, 50);
-    circle.setPosition(sf::Vector2f(200.0f, 200.0f));
-    circle.setFillColor(sf::Color::Cyan);
+    Game game;
+    game.Init(window);
 
     sf::Clock clock;
     while (window.isOpen())
@@ -27,13 +35,15 @@ int main(int argc, char* argv[])
             }
         }
 
-        ImGui::SFML::Update(window, clock.restart());
+        sf::Time delta = clock.restart();
+        game.Update(window, delta);
+        ImGui::SFML::Update(window, delta);
 
         ImGui::ShowDemoWindow();
 
         window.clear();
 
-        window.draw(circle);
+        game.Render(window);
         ImGui::SFML::Render(window);
 
         window.display();

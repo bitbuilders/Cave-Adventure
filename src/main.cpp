@@ -7,6 +7,13 @@
 
 #include "Game/Game.h"
 
+#ifdef WIN32
+
+// See bottom of file
+#include <windows.h>
+
+#endif
+
 int main(int argc, char* argv[])
 {
     auto window = sf::RenderWindow(
@@ -35,11 +42,17 @@ int main(int argc, char* argv[])
             }
         }
 
+        //// Update
+
         sf::Time delta = clock.restart();
         game.Update(window, delta);
+
+        ImGui::SFML::SetCurrentWindow(window);
         ImGui::SFML::Update(window, delta);
 
         ImGui::ShowDemoWindow();
+
+        //// Draw
 
         window.clear();
 
@@ -49,5 +62,19 @@ int main(int argc, char* argv[])
         window.display();
     }
 
+    game.Shutdown();
     ImGui::SFML::Shutdown();
+
+    return 0;
 }
+
+
+#ifdef WIN32
+
+// Real entry point for Windows app, prevents console from loading (hopefully cross-platform compatible because of preprocessors?)
+int WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
+{
+    return main(__argc, __argv);
+}
+
+#endif

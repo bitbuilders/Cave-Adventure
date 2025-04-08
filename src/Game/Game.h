@@ -5,9 +5,15 @@
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
 
-class Game {
+#include "Console.h"
+
+
+class Game
+{
 public:
     void Init(sf::RenderWindow& window);
+
+    void Shutdown();
 
     void Update(sf::RenderWindow& window, const sf::Time& delta);
 
@@ -15,6 +21,8 @@ public:
 
 private:
     sf::Clock clock;
+
+    Console console;
 
     sf::Music music;
 

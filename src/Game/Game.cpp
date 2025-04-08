@@ -1,6 +1,8 @@
 ﻿
 #include "Game.h"
 
+#include <cmath>
+
 void Game::Init(sf::RenderWindow& window)
 {
     // std::cout << "GAME INIT\n";
@@ -26,8 +28,8 @@ void Game::Shutdown()
 
 void Game::Update(sf::RenderWindow& window, const sf::Time& delta)
 {
-    temp.x = sin(clock.getElapsedTime().asSeconds()) * 200.0f + 200.0f;
-    temp.y = cos(clock.getElapsedTime().asSeconds()) * 100.0f + 100.0f;
+    temp.x = std::sin(clock.getElapsedTime().asSeconds()) * 200.0f + 200.0f;
+    temp.y = std::cos(clock.getElapsedTime().asSeconds()) * 100.0f + 100.0f;
 
     console.Update(delta);
 }

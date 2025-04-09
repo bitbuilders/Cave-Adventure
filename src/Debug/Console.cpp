@@ -6,8 +6,8 @@
 #include <string>
 #include <format>
 
+#include "AssetLibrary.h"
 #include "imgui.h"
-
 
 bool Console::Init(int consoleId, const sf::Vector2u& size, const sf::Vector2i& position)
 {
@@ -18,12 +18,14 @@ bool Console::Init(int consoleId, const sf::Vector2u& size, const sf::Vector2i& 
     window = sf::RenderWindow(sf::VideoMode(size), name);
     window.setPosition(position);
 
-    if (!ImGui::SFML::Init(window))
+    if (!ImGui::SFML::Init(window, false))
     {
         Shutdown();
 
         return false;
     }
+
+    AssetLibrary::LoadFonts();
 
     return true;
 }

@@ -5,6 +5,7 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 
+#include "AssetLibrary.h"
 #include "Game/Game.h"
 
 #ifdef WIN32
@@ -22,9 +23,16 @@ int main(int argc, char* argv[])
         sf::Style::Default,
         sf::State::Windowed);
     window.setFramerateLimit(0);
-    if (!ImGui::SFML::Init(window))
+    if (!ImGui::SFML::Init(window, false))
     {
         return 1;
+    }
+
+    AssetLibrary::LoadFonts();
+
+    if (!ImGui::SFML::UpdateFontTexture())
+    {
+        // NO FONT!
     }
 
     Game game;

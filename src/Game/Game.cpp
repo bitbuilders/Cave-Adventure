@@ -9,7 +9,7 @@ void Game::Init(sf::RenderWindow& window)
     clock.restart();
 
     // todo: figure out how to embed music (and other stuff) into .exe
-    if (music.openFromFile("music.mp3"))
+    if (music.openFromFile("assets/audio/music.mp3"))
     {
         music.setVolume(20.0f);
         // music.play();

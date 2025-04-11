@@ -27,7 +27,7 @@ bool AssetLibrary::LoadFonts()
 {
     auto io = ImGui::GetIO();
     io.Fonts->Clear();
-    io.Fonts->AddFontFromFileTTF(Fonts::Roboto::Light.c_str(), Fonts::DefaultSize);
+    io.Fonts->AddFontFromFileTTF(Fonts::Roboto::Regular.c_str(), Fonts::DefaultSize);
 
     return ImGui::SFML::UpdateFontTexture();
 }

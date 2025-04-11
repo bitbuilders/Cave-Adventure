@@ -15,6 +15,8 @@ void Game::Init(sf::RenderWindow& window)
         // music.play();
     }
 
+    Console::ClearLog();
+
     int consoleX = window.getPosition().x - 100;
     int consoleY = window.getPosition().y + static_cast<int>(window.getSize().y) - 100;
     console.Init(-1, {600u, 400u}, {consoleX, consoleY});

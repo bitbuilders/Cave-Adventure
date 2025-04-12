@@ -3,8 +3,9 @@
 
 #include <imgui-SFML.h>
 
-#include <format>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
 
 #include "AssetLibrary.h"
 #include "imgui.h"
@@ -13,34 +14,31 @@
 namespace Log
 {
     const std::string File = "saved/logs/log.log";
+
+    const ImVec4 LogColor = ImVec4(0.95f, 0.95f, 0.95f, 1.0f);
+    const ImVec4 WarningColor = ImVec4(0.9f, 0.95f, 0.05f, 1.0f);
+    const ImVec4 ErrorColor = ImVec4(0.9f, 0.15f, 0.1f, 1.0f);
 }
 
 
-void Console::Log(const std::string& Msg, const LogModifier& Modifier, LogOptions Options)
+template<typename... Types>
+void Console::Log(const std::string& Msg, const LogModifier& Modifier, Types... Args)
 {
     std::string directory = Log::File.substr(0, Log::File.rfind('/'));
     std::filesystem::create_directories(directory);
 
-    std::fstream log{Log::File, std::fstream::in | std::fstream::out | std::fstream::app};
+    std::fstream log{Log::File, std::fstream::in | std::fstream::app};
 
-    log << Msg << std::endl;
+    std::string formattedMsg = std::vformat(Msg, std::make_format_args(Args...));
+
+    log << formattedMsg << std::endl;
 
     log.close();
-}
 
-void Console::Log(const std::string& Msg)
-{
-    Log(Msg, LogModifier(), None);
-}
-
-void Console::LogWarning(const std::string& Msg)
-{
-    Log(Msg, { ImVec4(0.85f, 0.95f, 0.05f, 1.0f) }, Warning);
-}
-
-void Console::LogError(const std::string& Msg)
-{
-    Log(Msg, { ImVec4(0.9f, 0.2f, 0.1f, 1.0f) }, Error);
+    if (Modifier.options & Fatal)
+    {
+        CHECK(false, "Fatal error (see logs)");
+    }
 }
 
 void Console::ClearLog()
@@ -67,9 +65,22 @@ bool Console::Init(int consoleId, const sf::Vector2u& size, const sf::Vector2i& 
 
     AssetLibrary::LoadFonts();
 
-    Log("Hello");
-    Log("World");
-    Log("ImGui!");
+    Log("Hello", {});
+    Log("World", LogModifier());
+    Log("ImGui!", LogModifier());
+    Log("Number {}", LogModifier(), 2);
+    Log("Float {:.2f}", LogModifier(), 5.1263f);
+    LOG("Macro");
+    LOG("Macro {} two!", "is number");
+
+    LOG_L("says hi!");
+
+    // LOG_FATAL("Oops");
+
+    for (int i = 0; i < 100; ++i)
+    {
+        LOG("It is {}", i);
+    }
 
     return true;
 }
@@ -107,13 +118,10 @@ void Console::Update(const sf::Time& delta)
     {
         std::fstream log{Log::File};
 
-        std::string line;
-        while (log.getline(line.data(), sizeof(std::string)))
+        for (std::string line; std::getline(log, line); )
         {
             ImGui::Text(line.c_str());
         }
-
-        log.close();
     }
     ImGui::EndChild();
 

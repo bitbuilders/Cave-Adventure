@@ -6,7 +6,7 @@
 
 namespace DebugUtils
 {
-    std::string DebugUtils::GetCallLine(std::source_location call)
+    std::string GetCallLine(std::source_location call)
     {
         std::string file = call.file_name();
         int nameStart = static_cast<int>(file.rfind('\\')) + 1;

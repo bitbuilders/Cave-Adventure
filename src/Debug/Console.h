@@ -201,12 +201,14 @@ void Console::Log(const std::string& Msg, const LogModifier& Modifier, Types&&..
         static_cast<int>(std::floor(Modifier.color.w * 255.0f)));
     mods += color;
 
+#if !__APPLE__
     if (Modifier.options & Timestamp)
     {
         const auto utc = std::chrono::system_clock::now();
         auto local = std::chrono::current_zone()->to_local(utc);
         mods += std::format("[{:%m-%d-%Y %I:%M:%S %p}] ", std::chrono::time_point_cast<std::chrono::milliseconds>(local));
     }
+#endif
 
     std::string severity;
     if (Modifier.severity == LOG_Fatal)

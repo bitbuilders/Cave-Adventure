@@ -21,9 +21,12 @@
     #endif
 #endif
 
-// windows debug break
 #ifndef BREAK
+#if WIN32
     #define BREAK __debugbreak(); int __stophere = 0;
+#else
+    #define BREAK CHECKV(false)
+#endif
 #endif
 
 

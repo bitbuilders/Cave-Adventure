@@ -24,52 +24,52 @@
  * Print a log to the console (supports std::format style arguments!)
  * @param Msg The log message
  */
-#define LOG(Msg, ...) Console::Log(Msg, { LOG_Log, Log::LogColor }, __VA_ARGS__);
+#define LOG(Msg, ...) Console::Log(Msg, { LOG_Log, Log::LogColor }, ##__VA_ARGS__);
 
 /**
  * Print a modified log to the console
  * @param Msg The log message
  * @param Mod The log modifier (i.e. color, severity)
  */
-#define LOG_M(Msg, Mod, ...) Console::Log(Msg, Mod, __VA_ARGS__);
+#define LOG_M(Msg, Mod, ...) Console::Log(Msg, Mod, ##__VA_ARGS__);
 
 /**
  * Print a log to the console with the line/function it was called from prepended
  * @param Msg The log message
  */
-#define LOG_L(Msg, ...) LOG(std::format("{}: {}", DebugUtils::GetCallLine(), Msg), __VA_ARGS__)
+#define LOG_L(Msg, ...) LOG(std::format("{}: {}", DebugUtils::GetCallLine(), Msg), ##__VA_ARGS__)
 
 /**
  * Print a modified log to the console with the line/function it was called from prepended
  * @param Msg The log message
  * @param Mod The log modifier (i.e. color, severity)
  */
-#define LOG_LM(Msg, Mod, ...) LOG_M(std::format("{}: {}", DebugUtils::GetCallLine(), Msg), Mod, __VA_ARGS__)
+#define LOG_LM(Msg, Mod, ...) LOG_M(std::format("{}: {}", DebugUtils::GetCallLine(), Msg), Mod, ##__VA_ARGS__)
 
 /**
  * Print a modified log to the console with the line/function it was called from prepended
  * @param Msg The log message
  * @param Mod The log modifier (i.e. color, severity)
  */
-#define LOG_STAT(Msg, ...) LOG_M(Msg, { LOG_Log, Log::StatColor, Stat }, __VA_ARGS__)
+#define LOG_STAT(Msg, ...) LOG_M(Msg, { LOG_Log, Log::StatColor, Stat }, ##__VA_ARGS__)
 
 /**
  * Print a warning to the console
  * @param Msg The warning message (will be yellow)
  */
-#define LOG_WARN(Msg, ...) LOG_M(Msg, { LOG_Warning, Log::WarningColor }, __VA_ARGS__)
+#define LOG_WARN(Msg, ...) LOG_M(Msg, { LOG_Warning, Log::WarningColor }, ##__VA_ARGS__)
 
 /**
  * Print an error message to the console
  * @param Msg The error message (will be red)
  */
-#define LOG_ERROR(Msg, ...) LOG_M(Msg, { LOG_Error, Log::ErrorColor }, __VA_ARGS__)
+#define LOG_ERROR(Msg, ...) LOG_M(Msg, { LOG_Error, Log::ErrorColor }, ##__VA_ARGS__)
 
 /**
  * Print a fatal error message to the console then teardown the application (need to check log file after for the message)
  * @param Msg The fatal error message
  */
-#define LOG_FATAL(Msg, ...) LOG_M(std::format("{} -> {}", Msg, DebugUtils::GetCallLine()), { LOG_Fatal, Log::ErrorColor }, __VA_ARGS__)
+#define LOG_FATAL(Msg, ...) LOG_M(std::format("{} -> {}", Msg, DebugUtils::GetCallLine()), { LOG_Fatal, Log::ErrorColor }, ##__VA_ARGS__)
 
 #pragma endregion LogMacros
 

@@ -4,7 +4,10 @@
 #include <string>
 #include <source_location>
 #include <cassert>
+
+#if WIN32
 #include <intrin.h>
+#endif
 
 #define CHECK(Exp, Msg) assert((Msg, Exp));
 #define CHECKV(Exp) assert(Exp);

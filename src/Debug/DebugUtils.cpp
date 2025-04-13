@@ -13,6 +13,5 @@ namespace DebugUtils
         file = file.substr(nameStart, file.length() - nameStart);
 
         return std::format("{} ({}:{}) \"{}\"", file, call.line(), call.column(), call.function_name());
-
     }
 }

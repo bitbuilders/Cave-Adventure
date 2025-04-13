@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    AssetLibrary::LoadFonts();
+    // AssetLibrary::LoadFonts();
 
     if (!ImGui::SFML::UpdateFontTexture())
     {

@@ -14,20 +14,22 @@ void Game::Init(sf::RenderWindow& window)
         // music.play();
     }
 
-    Console::ClearLog();
+    Console::EmptyLogFile();
 
-    Console::Log("Game Init", LogModifier());
+    LOG("Game Init");
 
     int consoleX = window.getPosition().x - 100;
     int consoleY = window.getPosition().y + static_cast<int>(window.getSize().y) - 100;
-    console.Init(-1, {600u, 400u}, {consoleX, consoleY});
+    console.Init(0, {800u, 500u}, {consoleX, consoleY});
 }
 
 void Game::Shutdown()
 {
-    Console::Log("Game Shutdown", LogModifier());
+    LOG("Game Shutdown");
 
     console.Shutdown();
+
+    Console::CleanupLog();
 }
 
 void Game::Update(sf::RenderWindow& window, const sf::Time& delta)

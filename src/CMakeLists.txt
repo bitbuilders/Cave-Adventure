@@ -8,8 +8,10 @@ add_executable(Adventure WIN32
         AssetLibrary/AssetLibrary.cpp
         AssetLibrary/AssetLibrary.h
         Debug/DebugUtils.cpp
-        Debug/DebugUtils.h)
-target_include_directories(Adventure PRIVATE Game Debug AssetLibrary SFML)
+        Debug/DebugUtils.h
+        Debug/Stats.cpp
+        Debug/Stats.h)
+target_include_directories(Adventure PRIVATE Game Debug AssetLibrary)
 target_compile_features(Adventure PUBLIC cxx_std_23)
 target_link_libraries(Adventure
         PRIVATE

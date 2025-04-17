@@ -145,7 +145,7 @@ public:
     static void EmptyLogFile();
 
     /**
-     * Removes things like colors or other formatting from the log to make it more readable outside of runtime (different from ClearLog!)
+     * Removes things like colors or other formatting from the log to make it more readable outside of runtime
      */
     static void CleanupLog();
 

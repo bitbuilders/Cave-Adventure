@@ -17,60 +17,14 @@
 
 int main(int argc, char* argv[])
 {
-    auto window = sf::RenderWindow(
-        sf::VideoMode({1920u, 1080u}),
-        "Adventure",
-        sf::Style::Default,
-        sf::State::Windowed);
-    window.setFramerateLimit(0);
-    if (!ImGui::SFML::Init(window, false))
-    {
-        return 1;
-    }
-
-    // AssetLibrary::LoadFonts();
-
-    if (!ImGui::SFML::UpdateFontTexture())
-    {
-        // NO FONT!
-    }
-
     Game game;
-    game.Init(window);
+    game.Init();
 
-    sf::Clock clock;
-    while (window.isOpen())
+    while (game.IsRunning())
     {
-        while (const auto event = window.pollEvent())
-        {
-            ImGui::SFML::ProcessEvent(window, *event);
-            if (event->is<sf::Event::Closed>())
-            {
-                window.close();
-            }
-        }
-
-        //// Update
-
-        sf::Time delta = clock.restart();
-        game.Update(window, delta);
-
-        ImGui::SFML::SetCurrentWindow(window);
-        ImGui::SFML::Update(window, delta);
-
-        ImGui::ShowDemoWindow();
-
-        //// Draw
-
-        window.clear();
-
-        game.Render(window);
-        ImGui::SFML::Render(window);
-
-        window.display();
+        game.Tick();
     }
 
-    game.Shutdown();
     ImGui::SFML::Shutdown();
 
     return 0;

@@ -11,21 +11,38 @@
 class Game
 {
 public:
-    void Init(sf::RenderWindow& window);
+    static Game& Get();
 
-    void Shutdown();
-
-    void Update(sf::RenderWindow& window, const sf::Time& delta);
-
-    void Render(sf::RenderWindow& window);
+private:
+    static Game* game;
 
 private:
     sf::Clock clock;
+
+    sf::Clock frameClock;
 
     Console console;
 
     sf::Music music;
 
     sf::Vector2f temp;
+
+    sf::RenderWindow window;
+
+public:
+    void Init();
+
+    void Shutdown();
+
+    void Tick();
+
+    void Update(const sf::Time& delta);
+
+    void Render();
+
+    bool IsRunning() const;
+
+    sf::RenderWindow& GetWindow();
+
 };
 

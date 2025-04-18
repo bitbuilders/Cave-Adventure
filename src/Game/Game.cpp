@@ -57,6 +57,28 @@ void Game::Init()
     int consoleX = window.getPosition().x - 100;
     int consoleY = window.getPosition().y + static_cast<int>(window.getSize().y) - 100;
     console.Init(0, {800u, 500u}, {consoleX, consoleY});
+
+    TimedAction action;
+    action.action = [](const sf::Time& delta, const sf::Time& lifetime, sf::RenderWindow* window)
+    {
+        LOG("Occasional log {}", delta.asSeconds());
+    };
+    // action.infinite = true;
+    action.rate = 1.0f;
+    action.duration = 2.1f;
+
+    chrono.TrackUpdateAction(std::move(action));
+
+    DrawDebug::Line({100.0f, 0.0f}, {100.0f, 300.0f}, sf::Color::Green, 3.0f, 3.0f);
+
+    TimedAction delay;
+    delay.action = [](const sf::Time&, const sf::Time&, sf::RenderWindow*)
+    {
+        LOG("This happened next frame!");
+    };
+    chrono.TrackUpdateAction(delay);
+
+    LOG("This happened this frame!");
 }
 
 void Game::Shutdown()
@@ -107,6 +129,8 @@ void Game::Tick()
 
 void Game::Update(const sf::Time& delta)
 {
+    chrono.Update(delta);
+
     temp.x = std::sin(clock.getElapsedTime().asSeconds()) * 200.0f + 200.0f;
     temp.y = std::cos(clock.getElapsedTime().asSeconds()) * 100.0f + 100.0f;
 
@@ -115,6 +139,8 @@ void Game::Update(const sf::Time& delta)
 
 void Game::Render()
 {
+    chrono.Render(window);
+
     auto square = sf::RectangleShape({200, 100});
     square.setFillColor(sf::Color::Magenta);
     square.setPosition(temp);
@@ -124,6 +150,8 @@ void Game::Render()
     DrawDebug::LineSegment({{100.0f, 500.0f}, {200.0f, 500.0f}, { 400.0f, 700.0f}, { 600.0f, 700.0f} }, sf::Color::White, 10.0f);
 
     DrawDebug::Line({900.0f, 200.0f}, {700.0f, 900.0f}, sf::Color::Yellow);
+
+    DrawDebug::LineSegment({{450.0f, 400.0f}, {600.0f, 400.0f}, {600.0f, 800.0f}, {450.0f, 800.0f}, {400.0f, 400.0f}}, sf::Color::Red);
 
     console.Render();
 }
@@ -136,4 +164,9 @@ bool Game::IsRunning() const
 sf::RenderWindow& Game::GetWindow()
 {
     return window;
+}
+
+CaveChrono& Game::GetChrono()
+{
+    return chrono;
 }

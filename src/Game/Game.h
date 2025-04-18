@@ -5,6 +5,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
 
+#include "CaveChrono.h"
 #include "Console.h"
 
 
@@ -22,6 +23,8 @@ private:
     sf::Clock frameClock;
 
     Console console;
+
+    CaveChrono chrono;
 
     sf::Music music;
 
@@ -44,5 +47,5 @@ public:
 
     sf::RenderWindow& GetWindow();
 
+    CaveChrono& GetChrono();
 };
-

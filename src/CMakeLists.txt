@@ -15,9 +15,13 @@ add_executable(Adventure WIN32
         Debug/DebugDraw.h
         Game/CaveChrono.cpp
         Game/CaveChrono.h
-        Calc/Math.cpp
-        Calc/Math.h)
-target_include_directories(Adventure PRIVATE Game Debug AssetLibrary)
+        Calc/Calc.cpp
+        Calc/Calc.h
+        Game/Module.cpp
+        Game/Module.h
+        Game/Tickable.cpp
+        Game/Tickable.h)
+target_include_directories(Adventure PRIVATE Game Debug AssetLibrary Calc)
 #set_target_properties(Adventure PROPERTIES CXX_STANDARD 23)
 target_compile_features(Adventure PUBLIC cxx_std_23)
 target_link_libraries(Adventure

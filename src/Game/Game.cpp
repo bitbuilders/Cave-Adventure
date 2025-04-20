@@ -7,6 +7,7 @@
 
 #include "AssetLibrary.h"
 #include "DebugDraw.h"
+#include "Calc.h"
 
 Game* Game::game;
 
@@ -67,7 +68,7 @@ void Game::Init()
     action.rate = 1.0f;
     action.duration = 2.1f;
 
-    chrono.TrackUpdateAction(std::move(action));
+    LoadModule<CaveChrono>("CaveChrono").TrackUpdateAction(std::move(action));
 
     DrawDebug::Line({100.0f, 0.0f}, {100.0f, 300.0f}, sf::Color::Green, 3.0f, 3.0f);
 
@@ -76,7 +77,7 @@ void Game::Init()
     {
         LOG("This happened next frame!");
     };
-    chrono.TrackUpdateAction(delay);
+    LoadModule<CaveChrono>("CaveChrono").TrackUpdateAction(delay);
 
     LOG("This happened this frame!");
 }
@@ -129,17 +130,65 @@ void Game::Tick()
 
 void Game::Update(const sf::Time& delta)
 {
-    chrono.Update(delta);
+    for (auto module : modules)
+    {
+        if (module->CanUpdate())
+        {
+            module->Update(delta);
+        }
+    }
 
     temp.x = std::sin(clock.getElapsedTime().asSeconds()) * 200.0f + 200.0f;
     temp.y = std::cos(clock.getElapsedTime().asSeconds()) * 100.0f + 100.0f;
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+    {
+        LOG("A pressed");
+    }
+
+    for (uint32_t joystick = 0; joystick < sf::Joystick::Count; ++joystick)
+    {
+        if (!sf::Joystick::isConnected(joystick))
+        {
+            continue;
+        }
+
+        uint32_t numButtons = sf::Joystick::getButtonCount(joystick);
+        for (uint32_t i = 0; i < numButtons; ++i)
+        {
+            if (sf::Joystick::isButtonPressed(joystick, i))
+            {
+                LOG("Gamepad {} button {} pressed", joystick, i);
+            }
+        }
+
+        uint32_t numAxes = sf::Joystick::AxisCount;
+        for (uint32_t i = 0; i < numAxes; ++i)
+        {
+            auto axis = static_cast<sf::Joystick::Axis>(i);
+            if (sf::Joystick::hasAxis(joystick, axis))
+            {
+                float axisVal = sf::Joystick::getAxisPosition(joystick, axis);
+                if (!Math::NearlyZero(axisVal, 10.0f))
+                {
+                    LOG("Gamepad {} axis {} is {}", joystick, i, axisVal);
+                }
+            }
+        }
+    }
 
     console.Update(delta);
 }
 
 void Game::Render()
 {
-    chrono.Render(window);
+    for (auto module : modules)
+    {
+        if (module->CanRender())
+        {
+            module->Render(window);
+        }
+    }
 
     auto square = sf::RectangleShape({200, 100});
     square.setFillColor(sf::Color::Magenta);
@@ -164,9 +213,4 @@ bool Game::IsRunning() const
 sf::RenderWindow& Game::GetWindow()
 {
     return window;
-}
-
-CaveChrono& Game::GetChrono()
-{
-    return chrono;
 }

@@ -26,7 +26,7 @@ sf::RenderWindow* TimedAction::GetWindow(sf::RenderWindow* Default) const
 
 CaveChrono& CaveChrono::Get()
 {
-    return Game::Get().GetChrono();
+    return Game::Get().LoadModule<CaveChrono>("CaveChrono");
 }
 
 TimedActionHandle CaveChrono::TrackUpdateAction(TimedAction&& Action, bool CallImmediately)

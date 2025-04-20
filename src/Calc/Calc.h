@@ -24,12 +24,12 @@
 
 namespace Math
 {
-    inline bool NearlyEqual(const float A, const float B, const float Tolerance = 0.00001f)
+    inline bool NearlyEqual(const float A, const float B, const float Tolerance = 0.0001f)
     {
         return std::fabs(A - B) < Tolerance;
     }
 
-    inline bool NearlyZero(float A, float Tolerance = 0.00001f)
+    inline bool NearlyZero(float A, float Tolerance = 0.0001f)
     {
         return std::fabs(A) < Tolerance;
     }

@@ -4,6 +4,7 @@
 #include <functional>
 #include <vector>
 
+#include "Module.h"
 #include "SFML/Graphics/RenderWindow.hpp"
 #include "SFML/System/Clock.hpp"
 #include "SFML/System/Time.hpp"
@@ -50,10 +51,14 @@ private:
     friend class CaveChrono;
 };
 
-class CaveChrono
+class CaveChrono : public Module
 {
 public:
     static CaveChrono& Get();
+
+    /// Module interface start
+    constexpr std::string GetName() override { return "CaveChrono"; }
+    /// Module interface end
 
 private:
     std::vector<TimedAction> updateActions;
@@ -80,9 +85,14 @@ public:
 
     bool CancelRenderAction(TimedActionHandle Handle);
 
-    void Update(const sf::Time& Delta);
+    /// Tickable interface start
+    void Update(const sf::Time& Delta) override;
 
-    void Render(sf::RenderWindow& Window);
+    void Render(sf::RenderWindow& Window) override;
+
+    constexpr bool CanUpdate() override { return true; }
+    constexpr bool CanRender() override { return true; }
+    /// Tickable interface end
 
 private:
     TimedActionHandle GetNextHandle();

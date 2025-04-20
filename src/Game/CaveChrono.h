@@ -51,7 +51,7 @@ private:
     friend class CaveChrono;
 };
 
-class CaveChrono : public Module
+class CaveChrono final : public Module
 {
 public:
     static CaveChrono& Get();

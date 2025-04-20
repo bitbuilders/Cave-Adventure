@@ -53,6 +53,9 @@ public:
 
     sf::RenderWindow& GetWindow();
 
+    /** Get the time since application start, in seconds (unaffected by time dilation) */
+    float GetTime() const;
+
     template<class ModuleClass>
     void AddModule()
     {

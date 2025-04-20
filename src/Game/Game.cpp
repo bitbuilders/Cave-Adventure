@@ -8,6 +8,7 @@
 #include "AssetLibrary.h"
 #include "DebugDraw.h"
 #include "Calc.h"
+#include "Controls.h"
 
 Game* Game::game;
 
@@ -100,6 +101,15 @@ void Game::Tick()
     while (const auto event = window.pollEvent())
     {
         ImGui::SFML::ProcessEvent(window, *event);
+
+        for (auto module : modules)
+        {
+            if (module->CanPoll())
+            {
+                module->Poll(*event);
+            }
+        }
+
         if (event->is<sf::Event::Closed>())
         {
             Shutdown();
@@ -138,46 +148,47 @@ void Game::Update(const sf::Time& delta)
         }
     }
 
-    temp.x = std::sin(clock.getElapsedTime().asSeconds()) * 200.0f + 200.0f;
-    temp.y = std::cos(clock.getElapsedTime().asSeconds()) * 100.0f + 100.0f;
+    auto time = GetTime();
+    temp.x = std::sin(time) * 200.0f + 200.0f;
+    temp.y = std::cos(time) * 100.0f + 100.0f;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+    if (Controls::Get().GetPressedState(sf::Keyboard::Key::Space, PressedInputType::Pressed))
     {
-        LOG("A pressed");
+        LOG("Spacebar pressed!");
     }
-
-    for (uint32_t joystick = 0; joystick < sf::Joystick::Count; ++joystick)
+    if (Controls::Get().GetPressedState(sf::Mouse::Button::Left, PressedInputType::Pressed))
     {
-        if (!sf::Joystick::isConnected(joystick))
-        {
-            continue;
-        }
-
-        uint32_t numButtons = sf::Joystick::getButtonCount(joystick);
-        for (uint32_t i = 0; i < numButtons; ++i)
-        {
-            if (sf::Joystick::isButtonPressed(joystick, i))
-            {
-                LOG("Gamepad {} button {} pressed", joystick, i);
-            }
-        }
-
-        uint32_t numAxes = sf::Joystick::AxisCount;
-        for (uint32_t i = 0; i < numAxes; ++i)
-        {
-            auto axis = static_cast<sf::Joystick::Axis>(i);
-            if (sf::Joystick::hasAxis(joystick, axis))
-            {
-                float axisVal = sf::Joystick::getAxisPosition(joystick, axis);
-                if (!Math::NearlyZero(axisVal, 10.0f))
-                {
-                    LOG("Gamepad {} axis {} is {}", joystick, i, axisVal);
-                }
-            }
-        }
+        LOG("Left click pressed!");
+    }
+    if (Controls::Get().GetPressedState(GamepadButton::South, PressedInputType::Pressed))
+    {
+        LOG("gamepad A pressed!");
+    }
+    float mouseX = Controls::Get().GetAxis(MouseAxis::X);
+    if (!Math::NearlyZero(mouseX))
+    {
+        // LOG("Mouse delta x {}", mouseX);
+    }
+    float mouseY = Controls::Get().GetAxis(MouseAxis::Y);
+    if (!Math::NearlyZero(mouseY))
+    {
+        // LOG("Mouse delta y {}", mouseY);
+    }
+    float scroll = Controls::Get().GetAxis(MouseAxis::Wheel);
+    if (!Math::NearlyZero(scroll))
+    {
+        LOG("Mouse scroll {}", scroll);
     }
 
     console.Update(delta);
+
+    for (auto module : modules)
+    {
+        if (module->CanLateUpdate())
+        {
+            module->LateUpdate(delta);
+        }
+    }
 }
 
 void Game::Render()
@@ -213,4 +224,9 @@ bool Game::IsRunning() const
 sf::RenderWindow& Game::GetWindow()
 {
     return window;
+}
+
+float Game::GetTime() const
+{
+    return clock.getElapsedTime().asSeconds();
 }

@@ -8,6 +8,7 @@
 #include <vector>
 #include <type_traits>
 #include <memory>
+#include <algorithm>
 
 #include "CaveChrono.h"
 #include "Console.h"

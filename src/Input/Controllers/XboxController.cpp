@@ -221,8 +221,6 @@ void XboxController::Update(const sf::Time& Delta, Controls* Controls)
         GameInput::v1::GameInputGamepadState state;
         reading->GetGamepadState(&state);
         reading->Release();
-        const GameInput::v1::GameInputDeviceInfo* info;
-        Xbox::g_gamepad->GetDeviceInfo(&info);
 
         // Application-specific code to process the gamepad state goes here.
         if (state.buttons & GameInput::v1::GameInputGamepadA)

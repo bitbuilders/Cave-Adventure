@@ -4,7 +4,11 @@
 #include "Game.h"
 
 #include <algorithm>
+#include <ranges>
+#include <type_traits>
 
+#include "Calc.h"
+#include "Stats.h"
 #include "Controllers/CustomController.h"
 #include "Controllers/PS5Controller.h"
 #include "Controllers/XboxController.h"
@@ -33,6 +37,28 @@ CallbackHandle Controls::ListenForAxis(AxisCallback& Callback)
     return callback.handle;
 }
 
+void Controls::ChangePressedMappings(const std::vector<PressedMapping>& PressedMappings, CallbackHandle Handle)
+{
+    for (auto& listener : pressListeners)
+    {
+        if (listener.handle == Handle)
+        {
+            listener.mappings = PressedMappings;
+        }
+    }
+}
+
+void Controls::ChangeAxisMappings(const std::vector<AxisMapping>& AxisMappings, CallbackHandle Handle)
+{
+    for (auto& listener : axisListeners)
+    {
+        if (listener.handle == Handle)
+        {
+            listener.mappings = AxisMappings;
+        }
+    }
+}
+
 void Controls::RemoveListener(CallbackHandle Handle)
 {
     auto removedPress = std::ranges::remove(pressListeners, Handle, &PressCallback::handle);
@@ -48,7 +74,7 @@ void Controls::RemoveListener(CallbackHandle Handle)
     }
 }
 
-bool Controls::GetPressedState(const PressedVariant& pressed, PressedInputType type, int player ) const
+bool Controls::GetPressedState(const PressedVariant& pressed, PressedInputType::Type type, int player ) const
 {
     if (pressed.valueless_by_exception())
     {
@@ -57,10 +83,10 @@ bool Controls::GetPressedState(const PressedVariant& pressed, PressedInputType t
 
     auto checkState = [type](const PressState& PressState)
     {
-        return (type == PressedInputType::Pressed && PressState.pressed) ||
-            (type == PressedInputType::Released && PressState.released) ||
-            (type == PressedInputType::Down && PressState.down) ||
-            (type == PressedInputType::Up && !PressState.down);
+        return (type & PressedInputType::Pressed && PressState.pressed) ||
+            (type & PressedInputType::Released && PressState.released) ||
+            (type & PressedInputType::Down && PressState.down) ||
+            (type & PressedInputType::Up && !PressState.down);
     };
 
     if (auto key = std::get_if<sf::Keyboard::Key>(&pressed))
@@ -146,22 +172,30 @@ float Controls::GetAxis(const AxisVariant& axis, int player) const
     return 0.0f;
 }
 
-void Controls::SetPressedState(const PressedVariant& Pressed, const PressState& State, int player)
+void Controls::SetPressedState(const PressedVariant& Pressed, const PressState& State, int player, bool Broadcast)
 {
     if (Pressed.valueless_by_exception())
     {
         return;
     }
 
-    auto setState = [State](PressState& CurrentState)
+    auto setState = [this, State, Pressed, player, Broadcast](PressState& CurrentState)
     {
         if (!CurrentState.down && State.down)
         {
             CurrentState.pressed = true;
+            if (Broadcast)
+            {
+                BroadcastPressed(Pressed, PressedInputType::Pressed, player);
+            }
         }
         else if (CurrentState.down && !State.down)
         {
             CurrentState.released = true;
+            if (Broadcast)
+            {
+                BroadcastPressed(Pressed, PressedInputType::Released, player);
+            }
         }
 
         CurrentState.down = State.down;
@@ -205,12 +239,23 @@ void Controls::SetPressedState(const PressedVariant& Pressed, const PressState& 
     }
 }
 
-void Controls::SetAxisState(const AxisVariant& Axis, const AxisState& State, int player)
+void Controls::SetAxisState(const AxisVariant& Axis, const AxisState& State, int player, bool Broadcast)
 {
     if (Axis.valueless_by_exception())
     {
         return;
     }
+
+    auto setState = [this, Axis, player, State, Broadcast](AxisState& CurrentState)
+    {
+        float old = CurrentState.value;
+        CurrentState.value = State.value;
+        if (!Math::NearlyEqual(old, CurrentState.value) && Broadcast)
+        {
+            // LOG("{} <= {}", CurrentState.value, old);
+            BroadcastAxis(Axis, AxisInputType::ValueChanged, CurrentState.value, old, player);
+        }
+    };
 
     if (auto mouseAxis = std::get_if<MouseAxis>(&Axis))
     {
@@ -220,7 +265,7 @@ void Controls::SetAxisState(const AxisVariant& Axis, const AxisState& State, int
             {
                 if (axis.axis == *mouseAxis)
                 {
-                    axis.state = State;
+                    setState(axis.state);
                 }
             }
         }
@@ -229,9 +274,9 @@ void Controls::SetAxisState(const AxisVariant& Axis, const AxisState& State, int
     {
         for (auto& axis : gamepadAxes)
         {
-            if (axis.axis == *gamepadAxis)
+            if (axis.axis == *gamepadAxis && axis.player == player)
             {
-                axis.state = State;
+                setState(axis.state);
             }
         }
     }
@@ -256,6 +301,8 @@ void Controls::SetGamepadMode(GamepadMode mode, int player)
         gamepads[player] = std::make_shared<CustomController>();
         break;
     }
+
+    gamepads[player]->player = player;
 }
 
 Controls::Controls()
@@ -286,9 +333,62 @@ Controls::Controls()
             gamepadAxes.emplace_back(static_cast<GamepadAxis>(i), player);
         }
     }
+
     for (int player = 0; player < MAX_PLAYERS; ++player)
     {
-        gamepads.emplace(player, std::make_shared<XboxController>());
+        gamepads.emplace(player, nullptr);
+        SetGamepadMode(player == 0 ? GamepadMode::Xbox : GamepadMode::PS5, player);
+    }
+}
+
+void Controls::Update(const sf::Time& Delta)
+{
+    for (auto val : gamepads | std::views::values)
+    {
+        val->Update(Delta, this);
+    }
+
+    for (const auto& keyboardKey : keyboardKeys)
+    {
+        if (keyboardKey.state.down)
+        {
+            BroadcastPressed(keyboardKey.key, PressedInputType::Down, KBM_PLAYER);
+        }
+        else
+        {
+            BroadcastPressed(keyboardKey.key, PressedInputType::Up, KBM_PLAYER);
+        }
+    }
+    for (const auto& mouseButton : mouseButtons)
+    {
+        if (mouseButton.state.down)
+        {
+            BroadcastPressed(mouseButton.button, PressedInputType::Down, KBM_PLAYER);
+        }
+        else
+        {
+            BroadcastPressed(mouseButton.button, PressedInputType::Up, KBM_PLAYER);
+        }
+    }
+    for (const auto& gamepadButton : gamepadButtons)
+    {
+        if (gamepadButton.state.down)
+        {
+            BroadcastPressed(gamepadButton.button, PressedInputType::Down, gamepadButton.player);
+        }
+        else
+        {
+            BroadcastPressed(gamepadButton.button, PressedInputType::Up, gamepadButton.player);
+        }
+    }
+
+    for (const auto& mouseAxis : mouseAxes)
+    {
+        BroadcastAxis(mouseAxis.axis, AxisInputType::Value, mouseAxis.state.value, mouseAxis.state.value, KBM_PLAYER);
+    }
+    for (const auto & gamepadAxis : gamepadAxes)
+    {
+        BroadcastAxis(gamepadAxis.axis, AxisInputType::Value, gamepadAxis.state.value, gamepadAxis.state.value, gamepadAxis.player);
     }
 }
 
@@ -367,5 +467,71 @@ void Controls::EnumeratePressedStates(const std::function<void(PressState&)>& ca
     for (auto& button : gamepadButtons)
     {
         callback(button.state);
+    }
+}
+
+void Controls::BroadcastPressed(const PressedVariant& Pressed, PressedInputType::Type Type, int player)
+{
+    auto gamepad = gamepads[player];
+    auto gamepadMode = gamepad->GetMode();
+
+    for (const auto& listener : pressListeners)
+    {
+        for (const auto& mapping : listener.mappings)
+        {
+            if (mapping.mode && *mapping.mode != gamepadMode)
+            {
+                continue;
+            }
+
+            if (mapping.listenTo != Pressed)
+            {
+                continue;
+            }
+
+            if (!(mapping.type & Type))
+            {
+                continue;
+            }
+
+            if (listener.callback)
+            {
+                listener.callback(player, Type);
+            }
+            break;
+        }
+    }
+}
+
+void Controls::BroadcastAxis(const AxisVariant& Axis, AxisInputType::Type Type, float NewValue, float OldValue, int player)
+{
+    auto gamepad = gamepads[player];
+    auto gamepadMode = gamepad->GetMode();
+
+    for (const auto& listener : axisListeners)
+    {
+        for (const auto& mapping : listener.mappings)
+        {
+            if (mapping.mode && *mapping.mode != gamepadMode)
+            {
+                continue;
+            }
+
+            if (mapping.listenTo != Axis)
+            {
+                continue;
+            }
+
+            if (!(mapping.type & Type))
+            {
+                continue;
+            }
+
+            if (listener.callback)
+            {
+                listener.callback(player, NewValue, OldValue);
+            }
+            break;
+        }
     }
 }

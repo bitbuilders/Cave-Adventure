@@ -18,4 +18,6 @@ public:
     void HandleScroll(const sf::Event::MouseWheelScrolled& Event, Controls* Controls);
 
     void ResetAxes(Controls* Controls);
+
+    friend Controls;
 };

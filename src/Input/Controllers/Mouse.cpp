@@ -1,6 +1,8 @@
 ﻿
 #include "Mouse.h"
 
+#include <cmath>
+
 #include "Controls.h"
 
 void Mouse::HandleButtonPress(const sf::Event::MouseButtonPressed& Event, Controls* Controls)
@@ -23,15 +25,23 @@ void Mouse::HandleMove(const sf::Event::MouseMoved& Event, Controls* Controls)
 {
     sf::Vector2i delta = Event.position - lastPos;
 
-    AxisState moveX;
-    moveX.value = static_cast<float>(delta.x);
-    Controls->SetAxisState(MouseAxis::X, moveX);
+    if (std::abs(delta.x) > 0)
+    {
+        AxisState moveX;
+        moveX.value = static_cast<float>(Event.position.x);
+        Controls->SetAxisState(MouseAxis::X, moveX);
 
-    AxisState moveY;
-    moveY.value = static_cast<float>(delta.y);
-    Controls->SetAxisState(MouseAxis::Y, moveY);
+        lastPos.x = Event.position.x;
+    }
 
-    lastPos = Event.position;
+    if (std::abs(delta.y) > 0)
+    {
+        AxisState moveY;
+        moveY.value = static_cast<float>(Event.position.y);
+        Controls->SetAxisState(MouseAxis::Y, moveY);
+
+        lastPos.y = Event.position.y;
+    }
 }
 
 void Mouse::HandleScroll(const sf::Event::MouseWheelScrolled& Event, Controls* Controls)
@@ -44,15 +54,15 @@ void Mouse::HandleScroll(const sf::Event::MouseWheelScrolled& Event, Controls* C
 
 void Mouse::ResetAxes(Controls* Controls)
 {
-    AxisState moveX;
-    moveX.value = 0.0f;
-    Controls->SetAxisState(MouseAxis::X, moveX);
-
-    AxisState moveY;
-    moveX.value = 0.0f;
-    Controls->SetAxisState(MouseAxis::Y, moveY);
+    // AxisState moveX;
+    // moveX.value = 0.0f;
+    // Controls->SetAxisState(MouseAxis::X, moveX, KBM_PLAYER, false);
+    //
+    // AxisState moveY;
+    // moveX.value = 0.0f;
+    // Controls->SetAxisState(MouseAxis::Y, moveY, KBM_PLAYER, false);
 
     AxisState scroll;
     scroll.value = 0.0f;
-    Controls->SetAxisState(MouseAxis::Wheel, scroll);
+    Controls->SetAxisState(MouseAxis::Wheel, scroll, KBM_PLAYER, false);
 }

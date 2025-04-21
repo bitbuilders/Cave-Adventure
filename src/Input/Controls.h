@@ -9,6 +9,7 @@
 #include <map>
 #include <vector>
 #include <variant>
+#include <optional>
 
 #include "Controllers/Gamepad.h"
 #include "Controllers/Keyboard.h"
@@ -34,7 +35,7 @@ enum class MouseAxis
 {
     X, // Horizontal movement
     Y, // Vertical movement
-    Wheel, // Scroll wheel
+    Wheel, // Scroll wheel (will always be a delta value)
 
     COUNT
 };
@@ -72,19 +73,25 @@ enum class GamepadButton
     COUNT
 };
 
-enum class PressedInputType
+namespace PressedInputType
 {
-    Pressed = 0,
-    Released = 1 << 0,
-    Down = 1 << 1,
-    Up = 1 << 2
-};
+    enum Type : int
+    {
+        Pressed = 1 << 0,
+        Released = 1 << 1,
+        Down = 1 << 2,
+        Up = 1 << 3
+    };
+}
 
-enum class AxisInputType
+namespace AxisInputType
 {
-    ValueChanged = 0,
-    Value = 1 << 0
-};
+    enum Type : int
+    {
+        ValueChanged = 1 << 0,
+        Value = 1 << 1
+    };
+}
 
 struct PressState
 {
@@ -139,13 +146,21 @@ struct GamepadAxisState
 
 using PressedVariant = std::variant<sf::Mouse::Button, sf::Keyboard::Key, GamepadButton>;
 
-struct PressCallback
+struct PressedMapping
 {
     PressedVariant listenTo;
 
-    PressedInputType type = PressedInputType::Pressed;
+    PressedInputType::Type type = PressedInputType::Pressed;
 
-    std::function<void(int /*Player*/)> callback;
+    std::optional<GamepadMode> mode;
+};
+
+struct PressCallback
+{
+    /** The criteria for triggering the callback */
+    std::vector<PressedMapping> mappings;
+
+    std::function<void(int /*Player*/, PressedInputType::Type /*InputState*/)> callback;
 
 private:
     CallbackHandle handle = 0;
@@ -155,11 +170,19 @@ private:
 
 using AxisVariant = std::variant<MouseAxis, GamepadAxis>;
 
-struct AxisCallback
+struct AxisMapping
 {
     AxisVariant listenTo;
 
-    AxisInputType type = AxisInputType::ValueChanged;
+    AxisInputType::Type type = AxisInputType::ValueChanged;
+
+    std::optional<GamepadMode> mode;
+};
+
+struct AxisCallback
+{
+    /** The criteria for triggering the callback */
+    std::vector<AxisMapping> mappings;
 
     std::function<void(int /*Player*/,float /*NewValue*/, float /*OldValue*/)> callback;
 
@@ -194,17 +217,21 @@ public:
 
     CallbackHandle ListenForAxis(AxisCallback& Callback);
 
+    void ChangePressedMappings(const std::vector<PressedMapping>& PressedMappings, CallbackHandle Handle);
+
+    void ChangeAxisMappings(const std::vector<AxisMapping>& AxisMappings, CallbackHandle Handle);
+
     void RemoveListener(CallbackHandle Handle);
 
     /** Get the value of a button/key immediately (consider using ListenForPress instead of repeated calls to this) */
-    [[nodiscard]] bool GetPressedState(const PressedVariant& pressed, PressedInputType type = PressedInputType::Pressed, int player = 0) const;
+    [[nodiscard]] bool GetPressedState(const PressedVariant& pressed, PressedInputType::Type type = PressedInputType::Pressed, int player = 0) const;
 
     /** Get the value of an axis immediately (consider using ListenForAxis instead of repeated calls to this) */
     [[nodiscard]] float GetAxis(const AxisVariant& axis, int player = 0) const;
 
-    void SetPressedState(const PressedVariant& Pressed, const PressState& State, int player = 0);
+    void SetPressedState(const PressedVariant& Pressed, const PressState& State, int player = 0, bool Broadcast = true);
 
-    void SetAxisState(const AxisVariant& Axis, const AxisState& State, int player = 0);
+    void SetAxisState(const AxisVariant& Axis, const AxisState& State, int player = 0, bool Broadcast = true);
 
     void SetGamepadMode(GamepadMode mode, int player = 0);
 
@@ -217,17 +244,23 @@ public:
     /// Module interface end
 
     /// Tickable interface start
+    void Update(const sf::Time& Delta) override;
+
     void LateUpdate(const sf::Time& Delta) override;
 
     void Poll(const sf::Event& Event) override;
 
-    constexpr bool CanUpdate() override { return false; }
+    constexpr bool CanUpdate() override { return true; }
     constexpr bool CanLateUpdate() override { return true; }
     constexpr bool CanPoll() override { return true; }
     /// Tickable interface end
 
 private:
     void EnumeratePressedStates(const std::function<void(PressState&)>& callback);
+
+    void BroadcastPressed(const PressedVariant& Pressed, PressedInputType::Type Type, int player = 0);
+
+    void BroadcastAxis(const AxisVariant& Axis, AxisInputType::Type Type, float NewValue, float OldValue, int player = 0);
 
 private:
     static CallbackHandle currentHandle;

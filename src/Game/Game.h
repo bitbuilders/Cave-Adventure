@@ -28,6 +28,8 @@ private:
 
     sf::Clock frameClock;
 
+    sf::Time currentDelta;
+
     Console console;
 
     sf::Music music;
@@ -55,6 +57,9 @@ public:
 
     /** Get the time since application start, in seconds (unaffected by time dilation) */
     float GetTime() const;
+
+    /** Get this frame's delta time */
+    float GetDeltaTime() const;
 
     template<class ModuleClass>
     void AddModule()

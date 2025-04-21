@@ -9,6 +9,7 @@
 #include "DebugDraw.h"
 #include "Calc.h"
 #include "Controls.h"
+#include "Stats.h"
 
 Game* Game::game;
 
@@ -81,6 +82,32 @@ void Game::Init()
     LoadModule<CaveChrono>("CaveChrono").TrackUpdateAction(delay);
 
     LOG("This happened this frame!");
+
+    PressCallback callback;
+    callback.mappings = {{sf::Keyboard::Key::T, PressedInputType::Down}};
+    callback.callback = [](int Player, PressedInputType::Type Input)
+    {
+        LOG("Callback for T held! {}", static_cast<int>(Input));
+    };
+
+    Controls::Get().ListenForPress(callback);
+
+    AxisCallback axisCallback;
+    axisCallback.mappings = {{MouseAxis::X}};
+    axisCallback.callback = [](int player, float NewValue, float OldValue)
+    {
+        // LOG("Mouse move X {}", NewValue - OldValue);
+    };
+
+    Controls::Get().ListenForAxis(axisCallback);
+    AxisCallback axisCallback2;
+    axisCallback2.mappings = {{GamepadAxis::RSY}};
+    axisCallback2.callback = [](int player, float NewValue, float OldValue)
+    {
+        // LOG("RSY callback {} <= {}", NewValue, OldValue);
+    };
+
+    Controls::Get().ListenForAxis(axisCallback2);
 }
 
 void Game::Shutdown()
@@ -121,12 +148,12 @@ void Game::Tick()
         return;
     }
 
-    sf::Time delta = frameClock.restart();
+    currentDelta = frameClock.restart();
 
-    Update(delta);
+    Update(currentDelta);
 
     ImGui::SFML::SetCurrentWindow(window);
-    ImGui::SFML::Update(window, delta);
+    ImGui::SFML::Update(window, currentDelta);
 
     ImGui::ShowDemoWindow();
 
@@ -164,6 +191,16 @@ void Game::Update(const sf::Time& delta)
     {
         LOG("gamepad A pressed!");
     }
+    if (Controls::Get().GetPressedState(GamepadButton::Left, PressedInputType::Pressed))
+    {
+        LOG("dpad left pressed!");
+    }
+    if (Controls::Get().GetPressedState(GamepadButton::Right, PressedInputType::Pressed))
+    {
+        LOG("dpad right pressed!");
+    }
+    // auto lsx = Controls::Get().GetAxis(GamepadAxis::RSY);
+    // LOG("RT {}", lsx);
     float mouseX = Controls::Get().GetAxis(MouseAxis::X);
     if (!Math::NearlyZero(mouseX))
     {
@@ -177,7 +214,7 @@ void Game::Update(const sf::Time& delta)
     float scroll = Controls::Get().GetAxis(MouseAxis::Wheel);
     if (!Math::NearlyZero(scroll))
     {
-        LOG("Mouse scroll {}", scroll);
+        // LOG("Mouse scroll {}", scroll);
     }
 
     console.Update(delta);
@@ -229,4 +266,9 @@ sf::RenderWindow& Game::GetWindow()
 float Game::GetTime() const
 {
     return clock.getElapsedTime().asSeconds();
+}
+
+float Game::GetDeltaTime() const
+{
+    return currentDelta.asSeconds();
 }

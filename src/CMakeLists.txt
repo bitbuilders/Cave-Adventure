@@ -23,18 +23,8 @@ add_executable(Adventure WIN32
         Game/Tickable.h
         Input/Controls.cpp
         Input/Controls.h
-        Input/Controllers/Gamepad.cpp
-        Input/Controllers/Gamepad.h
-        Input/Controllers/XboxController.cpp
-        Input/Controllers/XboxController.h
-        Input/Controllers/PS5Controller.cpp
-        Input/Controllers/PS5Controller.h
-        Input/Controllers/CustomController.cpp
-        Input/Controllers/CustomController.h
-        Input/Controllers/Keyboard.cpp
-        Input/Controllers/Keyboard.h
-        Input/Controllers/Mouse.cpp
-        Input/Controllers/Mouse.h)
+        Input/CaveGameInput.cpp
+        Input/CaveGameInput.h)
 target_include_directories(Adventure PRIVATE Game Debug AssetLibrary Calc Input)
 #set_target_properties(Adventure PROPERTIES CXX_STANDARD 23)
 target_compile_features(Adventure PUBLIC cxx_std_23)

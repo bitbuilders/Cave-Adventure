@@ -8,10 +8,8 @@
 #include <type_traits>
 
 #include "Calc.h"
+#include "CaveGameInput.h"
 #include "Stats.h"
-#include "Controllers/CustomController.h"
-#include "Controllers/PS5Controller.h"
-#include "Controllers/XboxController.h"
 
 
 CallbackHandle Controls::currentHandle = 0;
@@ -282,31 +280,10 @@ void Controls::SetAxisState(const AxisVariant& Axis, const AxisState& State, int
     }
 }
 
-void Controls::SetGamepadMode(GamepadMode mode, int player)
-{
-    if (player < 0 || player >= MAX_PLAYERS)
-    {
-        return;
-    }
-
-    switch (mode)
-    {
-    case GamepadMode::Xbox:
-        gamepads[player] = std::make_shared<XboxController>();
-        break;
-    case GamepadMode::PS5:
-        gamepads[player] = std::make_shared<PS5Controller>();
-        break;
-    case GamepadMode::Custom:
-        gamepads[player] = std::make_shared<CustomController>();
-        break;
-    }
-
-    gamepads[player]->player = player;
-}
-
 Controls::Controls()
 {
+    Input::Init();
+
     for (int i = 0; i < sf::Keyboard::KeyCount; ++i)
     {
         keyboardKeys.emplace_back(static_cast<sf::Keyboard::Key>(i));
@@ -333,20 +310,16 @@ Controls::Controls()
             gamepadAxes.emplace_back(static_cast<GamepadAxis>(i), player);
         }
     }
+}
 
-    for (int player = 0; player < MAX_PLAYERS; ++player)
-    {
-        gamepads.emplace(player, nullptr);
-        SetGamepadMode(player == 0 ? GamepadMode::Xbox : GamepadMode::PS5, player);
-    }
+Controls::~Controls()
+{
+    Input::Shutdown();
 }
 
 void Controls::Update(const sf::Time& Delta)
 {
-    for (auto val : gamepads | std::views::values)
-    {
-        val->Update(Delta, this);
-    }
+    Input::ProcessInput(this);
 
     for (const auto& keyboardKey : keyboardKeys)
     {
@@ -401,57 +374,22 @@ void Controls::LateUpdate(const sf::Time& Delta)
         PressState.pressed = false;
         PressState.released = false;
     });
-
-    mouse.ResetAxes(this);
 }
 
 void Controls::Poll(const sf::Event& Event)
 {
     if (Event.is<sf::Event::KeyPressed>())
     {
-        keyboard.HandleKeyPress(*Event.getIf<sf::Event::KeyPressed>(), this);
+        PressState state;
+        state.down = true;
+        SetPressedState(Event.getIf<sf::Event::KeyPressed>()->code, state, KBM_PLAYER);
     }
     else if (Event.is<sf::Event::KeyReleased>())
     {
-        keyboard.HandleKeyRelease(*Event.getIf<sf::Event::KeyReleased>(), this);
+        SetPressedState(Event.getIf<sf::Event::KeyReleased>()->code, {}, KBM_PLAYER);
     }
-    else if (Event.is<sf::Event::MouseButtonPressed>())
-    {
-        mouse.HandleButtonPress(*Event.getIf<sf::Event::MouseButtonPressed>(), this);
-    }
-    else if (Event.is<sf::Event::MouseButtonReleased>())
-    {
-        mouse.HandleButtonRelease(*Event.getIf<sf::Event::MouseButtonReleased>(), this);
-    }
-    else if (Event.is<sf::Event::MouseMoved>())
-    {
-        mouse.HandleMove(*Event.getIf<sf::Event::MouseMoved>(), this);
-    }
-    else if (Event.is<sf::Event::MouseWheelScrolled>())
-    {
-        mouse.HandleScroll(*Event.getIf<sf::Event::MouseWheelScrolled>(), this);
-    }
-    else if (Event.is<sf::Event::JoystickButtonPressed>())
-    {
-        for (auto& gamepad : gamepads)
-        {
-            gamepad.second->HandleButtonPress(*Event.getIf<sf::Event::JoystickButtonPressed>(), this);
-        }
-    }
-    else if (Event.is<sf::Event::JoystickButtonReleased>())
-    {
-        for (auto& gamepad : gamepads)
-        {
-            gamepad.second->HandleButtonRelease(*Event.getIf<sf::Event::JoystickButtonReleased>(), this);
-        }
-    }
-    else if (Event.is<sf::Event::JoystickMoved>())
-    {
-        for (auto& gamepad : gamepads)
-        {
-            gamepad.second->HandleAxis(*Event.getIf<sf::Event::JoystickMoved>(), this);
-        }
-    }
+
+    // Mouse & Gamepad polling is done in CaveGameInput
 }
 
 void Controls::EnumeratePressedStates(const std::function<void(PressState&)>& callback)
@@ -472,18 +410,10 @@ void Controls::EnumeratePressedStates(const std::function<void(PressState&)>& ca
 
 void Controls::BroadcastPressed(const PressedVariant& Pressed, PressedInputType::Type Type, int player)
 {
-    auto gamepad = gamepads[player];
-    auto gamepadMode = gamepad->GetMode();
-
     for (const auto& listener : pressListeners)
     {
         for (const auto& mapping : listener.mappings)
         {
-            if (mapping.mode && *mapping.mode != gamepadMode)
-            {
-                continue;
-            }
-
             if (mapping.listenTo != Pressed)
             {
                 continue;
@@ -505,18 +435,10 @@ void Controls::BroadcastPressed(const PressedVariant& Pressed, PressedInputType:
 
 void Controls::BroadcastAxis(const AxisVariant& Axis, AxisInputType::Type Type, float NewValue, float OldValue, int player)
 {
-    auto gamepad = gamepads[player];
-    auto gamepadMode = gamepad->GetMode();
-
     for (const auto& listener : axisListeners)
     {
         for (const auto& mapping : listener.mappings)
         {
-            if (mapping.mode && *mapping.mode != gamepadMode)
-            {
-                continue;
-            }
-
             if (mapping.listenTo != Axis)
             {
                 continue;

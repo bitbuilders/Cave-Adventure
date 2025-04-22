@@ -11,10 +11,6 @@
 #include <variant>
 #include <optional>
 
-#include "Controllers/Gamepad.h"
-#include "Controllers/Keyboard.h"
-#include "Controllers/Mouse.h"
-
 
 /** The keyboard and mouse player index */
 #define KBM_PLAYER 0
@@ -22,14 +18,8 @@
 /** The total number of local players */
 #define MAX_PLAYERS 4
 
-using CallbackHandle = uint32_t;
 
-enum class GamepadMode
-{
-    Xbox,
-    PS5,
-    Custom
-};
+using CallbackHandle = uint32_t;
 
 enum class MouseAxis
 {
@@ -151,8 +141,6 @@ struct PressedMapping
     PressedVariant listenTo;
 
     PressedInputType::Type type = PressedInputType::Pressed;
-
-    std::optional<GamepadMode> mode;
 };
 
 struct PressCallback
@@ -175,8 +163,6 @@ struct AxisMapping
     AxisVariant listenTo;
 
     AxisInputType::Type type = AxisInputType::ValueChanged;
-
-    std::optional<GamepadMode> mode;
 };
 
 struct AxisCallback
@@ -208,10 +194,6 @@ private:
     std::vector<MouseAxisState> mouseAxes;
     std::vector<GamepadAxisState> gamepadAxes;
 
-    Keyboard keyboard;
-    Mouse mouse;
-    std::map<int, std::shared_ptr<Gamepad>> gamepads;
-
 public:
     CallbackHandle ListenForPress(PressCallback& Callback);
 
@@ -233,11 +215,9 @@ public:
 
     void SetAxisState(const AxisVariant& Axis, const AxisState& State, int player = 0, bool Broadcast = true);
 
-    void SetGamepadMode(GamepadMode mode, int player = 0);
-
 public:
     Controls();
-    ~Controls() override = default;
+    ~Controls() override;
 
     /// Module interface start
     constexpr std::string GetName() override { return "Controls"; }

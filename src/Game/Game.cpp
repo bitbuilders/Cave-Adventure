@@ -150,12 +150,12 @@ void Game::Tick()
 
     currentDelta = frameClock.restart();
 
-    Update(currentDelta);
-
     ImGui::SFML::SetCurrentWindow(window);
     ImGui::SFML::Update(window, currentDelta);
 
     ImGui::ShowDemoWindow();
+
+    Update(currentDelta);
 
     window.clear();
 
@@ -179,45 +179,8 @@ void Game::Update(const sf::Time& delta)
     temp.x = std::sin(time) * 200.0f + 200.0f;
     temp.y = std::cos(time) * 100.0f + 100.0f;
 
-    if (Controls::Get().GetPressedState(sf::Keyboard::Key::Space, PressedInputType::Pressed))
-    {
-        LOG("Spacebar pressed!");
-    }
-    if (Controls::Get().GetPressedState(sf::Mouse::Button::Left, PressedInputType::Pressed))
-    {
-        LOG("Left click pressed!");
-    }
-    if (Controls::Get().GetPressedState(GamepadButton::South, PressedInputType::Pressed))
-    {
-        LOG("gamepad A pressed!");
-    }
-    if (Controls::Get().GetPressedState(GamepadButton::Left, PressedInputType::Pressed))
-    {
-        LOG("dpad left pressed!");
-    }
-    if (Controls::Get().GetPressedState(GamepadButton::Right, PressedInputType::Pressed))
-    {
-        LOG("dpad right pressed!");
-    }
-    // auto lsx = Controls::Get().GetAxis(GamepadAxis::RSY);
-    // LOG("RT {}", lsx);
-    float mouseX = Controls::Get().GetAxis(MouseAxis::X);
-    if (!Math::NearlyZero(mouseX))
-    {
-        // LOG("Mouse delta x {}", mouseX);
-    }
-    float mouseY = Controls::Get().GetAxis(MouseAxis::Y);
-    if (!Math::NearlyZero(mouseY))
-    {
-        // LOG("Mouse delta y {}", mouseY);
-    }
-    float scroll = Controls::Get().GetAxis(MouseAxis::Wheel);
-    if (!Math::NearlyZero(scroll))
-    {
-        // LOG("Mouse scroll {}", scroll);
-    }
-
     console.Update(delta);
+    ImGui::SFML::SetCurrentWindow(window);
 
     for (auto module : modules)
     {

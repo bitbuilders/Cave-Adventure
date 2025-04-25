@@ -16,6 +16,10 @@ namespace Fonts
         extern const std::string Thin;
         extern const std::string Italic;
     }
+
+    namespace Icon
+    {
+    }
 }
 
 class AssetLibrary

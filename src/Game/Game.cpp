@@ -41,6 +41,10 @@ void Game::Init()
         return;
     }
 
+    auto& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
     AssetLibrary::LoadFonts();
 
     clock.restart();
@@ -180,7 +184,7 @@ void Game::Update(const sf::Time& delta)
     temp.y = std::cos(time) * 100.0f + 100.0f;
 
     console.Update(delta);
-    ImGui::SFML::SetCurrentWindow(window);
+    ResetImGuiWindow();
 
     for (auto module : modules)
     {
@@ -224,6 +228,11 @@ bool Game::IsRunning() const
 sf::RenderWindow& Game::GetWindow()
 {
     return window;
+}
+
+void Game::ResetImGuiWindow()
+{
+    ImGui::SFML::SetCurrentWindow(window);
 }
 
 float Game::GetTime() const

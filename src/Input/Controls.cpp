@@ -5,11 +5,10 @@
 
 #include <algorithm>
 #include <ranges>
-#include <type_traits>
 
 #include "Calc.h"
 #include "CaveGameInput.h"
-#include "Stats.h"
+#include "InputViewer.h"
 
 
 CallbackHandle Controls::currentHandle = 0;
@@ -280,6 +279,17 @@ void Controls::SetAxisState(const AxisVariant& Axis, const AxisState& State, int
     }
 }
 
+void Controls::GetDownKeys(std::vector<sf::Keyboard::Key>& Keys) const
+{
+    for (const auto & key : keyboardKeys)
+    {
+        if (key.state.down)
+        {
+            Keys.push_back(key.key);
+        }
+    }
+}
+
 Controls::Controls()
 {
     Input::Init();
@@ -363,6 +373,8 @@ void Controls::Update(const sf::Time& Delta)
     {
         BroadcastAxis(gamepadAxis.axis, AxisInputType::Value, gamepadAxis.state.value, gamepadAxis.state.value, gamepadAxis.player);
     }
+
+    InputViewer::ShowInputViewer();
 }
 
 void Controls::LateUpdate(const sf::Time& Delta)

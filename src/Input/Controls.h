@@ -215,6 +215,8 @@ public:
 
     void SetAxisState(const AxisVariant& Axis, const AxisState& State, int player = 0, bool Broadcast = true);
 
+    void GetDownKeys(std::vector<sf::Keyboard::Key>& Keys) const;
+
 public:
     Controls();
     ~Controls() override;

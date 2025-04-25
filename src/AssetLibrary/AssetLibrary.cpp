@@ -21,6 +21,10 @@ namespace Fonts
         const std::string Thin = ROBOTO_FONT(Thin);
         const std::string Italic = ROBOTO_FONT(Italic);
     }
+
+    namespace Icon
+    {
+    }
 }
 
 bool AssetLibrary::LoadFonts()

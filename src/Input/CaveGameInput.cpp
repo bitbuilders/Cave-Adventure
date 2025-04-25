@@ -8,6 +8,8 @@
 #include <vector>
 #include <map>
 
+#include "Calc.h"
+
 
 namespace Input
 {
@@ -77,6 +79,7 @@ namespace Input
             auto deltaX = static_cast<float>(state.positionX - lastMouseState.positionX);
             auto deltaY = static_cast<float>(state.positionY - lastMouseState.positionY);
             auto deltaWheel = static_cast<float>(state.wheelY - lastMouseState.wheelY);
+            deltaWheel = Math::Sign(deltaWheel);
 
             lastMouseState = state;
 

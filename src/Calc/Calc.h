@@ -34,6 +34,22 @@ namespace Math
         return std::fabs(A) < Tolerance;
     }
 
+    inline float Clamp(float X, float Min, float Max)
+    {
+        return std::fmax(std::fmin(X, Max), Min);
+    }
+
+    inline float Clamp01(float X)
+    {
+        return Clamp(X, 0.0f, 1.0f);
+    }
+
+    /* -1, 0, 1 */
+    constexpr float Sign(float X)
+    {
+        return NearlyZero(X) ? 0.0f : (X > 0.0f ? 1.0f : -1.0f);
+    }
+
     constexpr float Deg(float Rad)
     {
         return Rad * RAD_TO_DEG;

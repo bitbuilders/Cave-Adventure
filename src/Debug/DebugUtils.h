@@ -24,6 +24,7 @@
 #ifndef BREAK
 #if WIN32
     #define BREAK __debugbreak(); int __stophere = 0;
+    #define BREAK_IF(cond) if (cond) BREAK
 #else
     #define BREAK CHECKV(false)
 #endif

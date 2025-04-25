@@ -24,7 +24,9 @@ add_executable(Adventure WIN32
         Input/Controls.cpp
         Input/Controls.h
         Input/CaveGameInput.cpp
-        Input/CaveGameInput.h)
+        Input/CaveGameInput.h
+        Input/InputViewer.cpp
+        Input/InputViewer.h)
 target_include_directories(Adventure PRIVATE Game Debug AssetLibrary Calc Input)
 #set_target_properties(Adventure PROPERTIES CXX_STANDARD 23)
 target_compile_features(Adventure PUBLIC cxx_std_23)

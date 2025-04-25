@@ -55,6 +55,9 @@ public:
 
     sf::RenderWindow& GetWindow();
 
+    /** Sets the ImGui::SFML window to the main game window */
+    void ResetImGuiWindow();
+
     /** Get the time since application start, in seconds (unaffected by time dilation) */
     float GetTime() const;
 

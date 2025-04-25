@@ -26,8 +26,10 @@ add_executable(Adventure WIN32
         Input/CaveGameInput.cpp
         Input/CaveGameInput.h
         Input/InputViewer.cpp
-        Input/InputViewer.h)
-target_include_directories(Adventure PRIVATE Game Debug AssetLibrary Calc Input)
+        Input/InputViewer.h
+        AssetLibrary/Font/IconsFontAwesome6.h
+        AssetLibrary/Font/IconsFontAwesome6Brands.h)
+target_include_directories(Adventure PRIVATE Game Debug AssetLibrary AssetLibrary/Font Calc Input)
 #set_target_properties(Adventure PROPERTIES CXX_STANDARD 23)
 target_compile_features(Adventure PUBLIC cxx_std_23)
 target_link_libraries(Adventure

@@ -3,6 +3,12 @@
 
 #include <string>
 
+// Include font helper files so you don't need to include them everywhere else
+#include "IconsFontAwesome6.h"
+#include "IconsFontAwesome6Brands.h"
+
+struct ImFont;
+
 namespace Fonts
 {
     extern const float DefaultSize;
@@ -17,8 +23,14 @@ namespace Fonts
         extern const std::string Italic;
     }
 
-    namespace Icon
+    namespace FontAwesome
     {
+        extern const std::string Regular;
+        extern const std::string Solid;
+        extern const std::string Brands;
+
+        /* For solid letters */
+        extern ImFont* LetterFont;
     }
 }
 

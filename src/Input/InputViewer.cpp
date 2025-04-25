@@ -7,6 +7,7 @@
 
 #include <algorithm>
 
+#include "AssetLibrary.h"
 #include "Calc.h"
 #include "imgui-SFML.h"
 
@@ -161,6 +162,8 @@ void InputViewer::ShowInputViewer()
 
     ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, {0.5f, 0.5f});
 
+    ImGui::PushFont(Fonts::FontAwesome::LetterFont);
+
     ImGui::BeginGroup();
     ImGui::Indent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
     ImGui::Selectable("W", controls.GetPressedState(sf::Keyboard::Key::W, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
@@ -171,6 +174,8 @@ void InputViewer::ShowInputViewer()
     ImGui::SameLine();
     ImGui::Selectable("D", controls.GetPressedState(sf::Keyboard::Key::D, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::EndGroup();
+
+    ImGui::PopFont();
 
     std::vector<sf::Keyboard::Key> downKeys;
     controls.GetDownKeys(downKeys);
@@ -192,16 +197,18 @@ void InputViewer::ShowInputViewer()
 
     ImGui::SeparatorText("Mouse");
 
+    ImGui::PushFont(Fonts::FontAwesome::LetterFont);
     ImGui::BeginGroup();
-    ImGui::Selectable("LMB", controls.GetPressedState(sf::Mouse::Button::Left, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable("LMB", controls.GetPressedState(sf::Mouse::Button::Left, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize * 1.5f, buttonSize});
     ImGui::SameLine();
-    ImGui::Selectable("MMB", controls.GetPressedState(sf::Mouse::Button::Middle, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable("MMB", controls.GetPressedState(sf::Mouse::Button::Middle, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize * 1.5f, buttonSize});
     ImGui::SameLine();
-    ImGui::Selectable("RMB", controls.GetPressedState(sf::Mouse::Button::Right, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
-    ImGui::Selectable("MB5", controls.GetPressedState(sf::Mouse::Button::Extra2, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable("RMB", controls.GetPressedState(sf::Mouse::Button::Right, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize * 1.5f, buttonSize});
+    ImGui::Selectable("MB5", controls.GetPressedState(sf::Mouse::Button::Extra2, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize * 1.5f, buttonSize});
     ImGui::SameLine();
-    ImGui::Selectable("MB4", controls.GetPressedState(sf::Mouse::Button::Extra1, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable("MB4", controls.GetPressedState(sf::Mouse::Button::Extra1, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize * 1.5f, buttonSize});
     ImGui::EndGroup();
+    ImGui::PopFont();
 
     ImGui::SameLine();
 
@@ -260,6 +267,8 @@ void InputViewer::ShowInputViewer()
 
     ImGui::Indent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
 
+    ImGui::PushFont(Fonts::FontAwesome::LetterFont);
+
     float lt = controls.GetAxis(GamepadAxis::LT);
     ImGui::ProgressBar(lt, {buttonSize * 2.0f, buttonSize}, "LT");
     ImGui::Selectable("LB", controls.GetPressedState(GamepadButton::LB, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize * 2.0f, buttonSize});
@@ -278,6 +287,8 @@ void InputViewer::ShowInputViewer()
     ImGui::ProgressBar(rt, {buttonSize * 2.0f, buttonSize}, "RT");
     ImGui::Selectable("RB", controls.GetPressedState(GamepadButton::RB, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize * 2.0f, buttonSize});
 
+    ImGui::PopFont();
+
     ImGui::Unindent((buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f) * 3.0f);
 
     ImGui::EndGroup();
@@ -285,41 +296,41 @@ void InputViewer::ShowInputViewer()
 
     ImGui::BeginGroup();
     ImGui::Indent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
-    ImGui::Selectable("^", controls.GetPressedState(GamepadButton::Up, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable(ICON_FA_CIRCLE_UP, controls.GetPressedState(GamepadButton::Up, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::Unindent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
-    ImGui::Selectable("<", controls.GetPressedState(GamepadButton::Left, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable(ICON_FA_CIRCLE_LEFT, controls.GetPressedState(GamepadButton::Left, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::SameLine(0, buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
     // ImGui::Indent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
-    ImGui::Selectable(">", controls.GetPressedState(GamepadButton::Right, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable(ICON_FA_CIRCLE_RIGHT, controls.GetPressedState(GamepadButton::Right, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     // ImGui::Unindent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
     ImGui::Indent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
-    ImGui::Selectable("v", controls.GetPressedState(GamepadButton::Down, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable(ICON_FA_CIRCLE_DOWN, controls.GetPressedState(GamepadButton::Down, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::Unindent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
     ImGui::EndGroup();
     ImGui::SameLine();
 
-    // ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-    ImGui::Selectable("@", controls.GetPressedState(GamepadButton::Special, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable(ICON_FA_CIRCLE_DOT, controls.GetPressedState(GamepadButton::Special, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::SameLine();
-    ImGui::Selectable("X", controls.GetPressedState(GamepadButton::Logo, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable(ICON_FA_XBOX, controls.GetPressedState(GamepadButton::Logo, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::SameLine();
-    ImGui::Selectable("=", controls.GetPressedState(GamepadButton::Menu, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable(ICON_FA_GRIP_LINES, controls.GetPressedState(GamepadButton::Menu, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::SameLine();
-    // ImGui::PopFont();
+
+    ImGui::PushFont(Fonts::FontAwesome::LetterFont);
 
     ImGui::BeginGroup();
     ImGui::Indent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
-    ImGui::Selectable("y", controls.GetPressedState(GamepadButton::North, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable(ICON_FA_Y, controls.GetPressedState(GamepadButton::North, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::Unindent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
-    ImGui::Selectable("x", controls.GetPressedState(GamepadButton::West, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable(ICON_FA_X, controls.GetPressedState(GamepadButton::West, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::SameLine(0, buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
-    // ImGui::Indent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
-    ImGui::Selectable("b", controls.GetPressedState(GamepadButton::East, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
-    // ImGui::Unindent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
+    ImGui::Selectable(ICON_FA_B, controls.GetPressedState(GamepadButton::East, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::Indent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
-    ImGui::Selectable("a", controls.GetPressedState(GamepadButton::South, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable(ICON_FA_A, controls.GetPressedState(GamepadButton::South, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::Unindent(buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f);
     ImGui::EndGroup();
+
+    ImGui::PopFont();
 
     ImGui::Indent((buttonSize + ImGui::GetStyle().FramePadding.x * 2.0f) * 2.0f);
 

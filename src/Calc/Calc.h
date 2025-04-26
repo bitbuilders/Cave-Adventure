@@ -4,6 +4,7 @@
 #include <limits>
 #include <cmath>
 #include <numbers>
+#include <algorithm>
 
 #define PI std::numbers::pi_v<float>
 
@@ -39,9 +40,34 @@ namespace Math
         return std::fmax(std::fmin(X, Max), Min);
     }
 
+    inline int Clamp(int X, int Min, int Max)
+    {
+        return std::max(std::min(X, Max), Min);
+    }
+
     inline float Clamp01(float X)
     {
         return Clamp(X, 0.0f, 1.0f);
+    }
+
+    constexpr bool IsBetweenIncl(int X, int Min, int Max)
+    {
+        return X >= Min && X <= Max;
+    }
+
+    constexpr bool IsBetweenExcl(int X, int Min, int Max)
+    {
+        return X >= Min && X < Max;
+    }
+
+    constexpr bool IsWithinIncl(int X, int Max)
+    {
+        return X >= 0 && X <= Max;
+    }
+
+    constexpr bool IsWithinExcl(int X, int Max)
+    {
+        return X >= 0 && X < Max;
     }
 
     /* -1, 0, 1 */

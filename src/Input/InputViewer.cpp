@@ -6,6 +6,7 @@
 #include "Controls.h"
 
 #include <algorithm>
+#include <map>
 
 #include "AssetLibrary.h"
 #include "Calc.h"

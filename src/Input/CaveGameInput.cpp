@@ -16,6 +16,9 @@ namespace Input
     GameInput::v1::IGameInput* g_gameInput = nullptr;
     std::vector<GameInput::v1::IGameInputDevice*> g_gamepads(MAX_PLAYERS, nullptr);
 
+    constexpr auto sonyVendorId = 0x054C;
+    constexpr auto xboxVendorId = 0x045E;
+
     GameInput::v1::GameInputMouseState lastMouseState;
 
     std::map<GameInput::v1::GameInputGamepadButtons, GamepadButton> xboxButtonMap =
@@ -111,6 +114,28 @@ namespace Input
                 reading->GetDevice(&g_gamepads[player]);
             }
 
+            bool isXbox = false;
+            bool isPlayStation = false;
+            const GameInput::v1::GameInputDeviceInfo* info;
+            if (SUCCEEDED(g_gamepads[player]->GetDeviceInfo(&info)))
+            {
+                isXbox = info->vendorId == xboxVendorId;
+                isPlayStation = info->vendorId == sonyVendorId;
+            }
+
+            if (isXbox)
+            {
+                Controls->SetGamepadType(player, GamepadType::Xbox);
+            }
+            else if (isPlayStation)
+            {
+                Controls->SetGamepadType(player, GamepadType::PS5);
+            }
+            else
+            {
+                Controls->SetGamepadType(player, GamepadType::Other);
+            }
+
             GameInput::v1::GameInputGamepadState state{};
             reading->GetGamepadState(&state);
             reading->Release();
@@ -125,10 +150,13 @@ namespace Input
                 Controls->SetPressedState(buttons.second, pressState, player);
             }
 
+            // very hacky, but I want controls to be consistent across controllers
+            float yAxisDir = isPlayStation ? -1.0f : 1.0f;
+
             Controls->SetAxisState(GamepadAxis::LSX, {state.leftThumbstickX}, player);
-            Controls->SetAxisState(GamepadAxis::LSY, {state.leftThumbstickY}, player);
+            Controls->SetAxisState(GamepadAxis::LSY, {state.leftThumbstickY * yAxisDir}, player);
             Controls->SetAxisState(GamepadAxis::RSX, {state.rightThumbstickX}, player);
-            Controls->SetAxisState(GamepadAxis::RSY, {state.rightThumbstickY}, player);
+            Controls->SetAxisState(GamepadAxis::RSY, {state.rightThumbstickY * yAxisDir}, player);
             Controls->SetAxisState(GamepadAxis::LT, {state.leftTrigger}, player);
             Controls->SetAxisState(GamepadAxis::RT, {state.rightTrigger}, player);
         }

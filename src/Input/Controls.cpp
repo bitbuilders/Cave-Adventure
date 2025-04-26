@@ -290,6 +290,14 @@ void Controls::GetDownKeys(std::vector<sf::Keyboard::Key>& Keys) const
     }
 }
 
+void Controls::SetGamepadType(int Player, GamepadType Type)
+{
+    if (Math::IsWithinExcl(Player, MAX_PLAYERS))
+    {
+        gamepads[Player].type = Type;
+    }
+}
+
 Controls::Controls()
 {
     Input::Init();

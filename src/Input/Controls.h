@@ -6,10 +6,9 @@
 #include <SFML/Window/Mouse.hpp>
 
 #include <functional>
-#include <map>
+#include <array>
 #include <vector>
 #include <variant>
-#include <optional>
 
 
 /** The keyboard and mouse player index */
@@ -20,6 +19,13 @@
 
 
 using CallbackHandle = uint32_t;
+
+enum class GamepadType
+{
+    Xbox,
+    PS5,
+    Other
+};
 
 enum class MouseAxis
 {
@@ -178,6 +184,11 @@ private:
     friend class Controls;
 };
 
+struct CaveGamepad
+{
+    GamepadType type = GamepadType::Xbox;
+};
+
 class Controls final : public Module
 {
 public:
@@ -193,6 +204,8 @@ private:
 
     std::vector<MouseAxisState> mouseAxes;
     std::vector<GamepadAxisState> gamepadAxes;
+
+    std::array<CaveGamepad, MAX_PLAYERS> gamepads;
 
 public:
     CallbackHandle ListenForPress(PressCallback& Callback);
@@ -216,6 +229,8 @@ public:
     void SetAxisState(const AxisVariant& Axis, const AxisState& State, int player = 0, bool Broadcast = true);
 
     void GetDownKeys(std::vector<sf::Keyboard::Key>& Keys) const;
+
+    void SetGamepadType(int Player, GamepadType Type);
 
 public:
     Controls();

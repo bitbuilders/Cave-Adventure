@@ -8,6 +8,7 @@
 #include "AssetLibrary.h"
 #include "DebugDraw.h"
 #include "Calc.h"
+#include "CaveRand.h"
 #include "Controls.h"
 #include "Stats.h"
 

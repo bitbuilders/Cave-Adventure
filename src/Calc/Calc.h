@@ -6,6 +6,8 @@
 #include <numbers>
 #include <algorithm>
 
+#include <SFML/System/Vector2.hpp>
+
 #define PI std::numbers::pi_v<float>
 
 #define DEG_TO_RAD 0.0174532925f
@@ -33,6 +35,32 @@ namespace Math
     inline bool NearlyZero(float A, float Tolerance = 0.0001f)
     {
         return std::fabs(A) < Tolerance;
+    }
+
+    inline float Pow(float X, float Y)
+    {
+        return std::powf(X, Y);
+    }
+
+    inline float Square(float X)
+    {
+        return Pow(X, 2.0f);
+    }
+
+    inline sf::Vector2f ClampMagnitude(const sf::Vector2f& Vec, float Magnitude)
+    {
+        const float length = Vec.lengthSquared();
+        if (NearlyZero(length))
+        {
+            return Vec;
+        }
+
+        if (length > Square(Magnitude))
+        {
+            return Vec.normalized() * Magnitude;
+        }
+
+        return Vec;
     }
 
     inline float Clamp(float X, float Min, float Max)

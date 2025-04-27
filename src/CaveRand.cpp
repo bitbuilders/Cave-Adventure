@@ -30,7 +30,7 @@ void Mystery::SkipNext(uint64_t Num)
     generator.discard(Num);
 }
 
-void Mystery::Reseed(std::optional<int64_t> Seed)
+void Mystery::Reseed(std::optional<uint64_t> Seed)
 {
     if (Seed.has_value())
     {
@@ -48,7 +48,7 @@ Mystery::Mystery()
     Reseed();
 }
 
-Mystery::Mystery(int64_t Seed)
+Mystery::Mystery(uint64_t Seed)
 {
     Reseed(Seed);
 }
@@ -75,13 +75,9 @@ int CaveRand::Range(int Min, int Max)
 
 sf::Vector2f CaveRand::InsideCircle(bool Normalize)
 {
-    float x = Value() * 2.0f - 1.0f;
-    float y = Value() * 2.0f - 1.0f;
+    float x = Normalize ? 1.0f : Value();
+    float y = 0.0f;
+    float angle = Value(360.0f);
 
-    if (Normalize)
-    {
-        return sf::Vector2f(x, y).normalized();
-    }
-
-    return Math::ClampMagnitude({ x, y }, 1.0f);
+    return Math::Rotate({x, y}, angle);
 }

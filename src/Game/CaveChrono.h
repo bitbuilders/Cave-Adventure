@@ -72,9 +72,11 @@ public:
     TimedActionHandle TrackUpdateAction(TimedAction& Action, bool CallImmediately = false);
 
     /**
-     * Queue a timed action to be invoked during the render phase of the game loop
+     * Queue a timed action to be invoked during the render phase of the game loop.
      *
-     * If called from update-cycle the action will be invoked in the same frame (after updates)
+     * If called from update-cycle the action will be invoked in the same frame (after updates).
+     *
+     * CallImmediately will have no effect if not in the update phase
      */
     TimedActionHandle TrackRenderAction(TimedAction&& Action, bool CallImmediately = false);
 

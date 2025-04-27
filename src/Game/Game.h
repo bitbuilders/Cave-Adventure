@@ -15,6 +15,17 @@
 #include "Module.h"
 
 
+enum class TickPhase
+{
+    PreUpdate,
+    Update,
+    LateUpdate,
+    FixedUpdate,
+    PreRender,
+    Render
+};
+
+
 class Game
 {
 public:
@@ -24,6 +35,8 @@ private:
     static Game* game;
 
 private:
+    TickPhase phase = TickPhase::PreUpdate;
+
     sf::Clock clock;
 
     sf::Clock frameClock;
@@ -107,4 +120,11 @@ public:
 
         return *foundModule;
     }
+
+    TickPhase GetTickPhase() const;
+
+    bool InRenderPhase() const;
+
+private:
+    void SetTickPhase(TickPhase Phase);
 };

@@ -298,6 +298,16 @@ void Controls::SetGamepadType(int Player, GamepadType Type)
     }
 }
 
+GamepadType Controls::GetGamepadType(int Player) const
+{
+    if (Math::IsWithinExcl(Player, MAX_PLAYERS))
+    {
+        return gamepads[Player].type;
+    }
+
+    return GamepadType::Other;
+}
+
 Controls::Controls()
 {
     Input::Init();

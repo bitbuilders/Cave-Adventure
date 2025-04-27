@@ -28,10 +28,10 @@ public:
     void SkipNext(uint64_t Num = 1);
 
     /* Resets the seed on the generator with an optionally provided seed */
-    void Reseed(std::optional<int64_t> Seed = {});
+    void Reseed(std::optional<uint64_t> Seed = {});
 
     Mystery();
-    explicit Mystery(int64_t Seed);
+    explicit Mystery(uint64_t Seed);
 };
 
 class CaveRand : public Module

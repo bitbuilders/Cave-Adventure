@@ -54,7 +54,7 @@ TimedActionHandle CaveChrono::TrackRenderAction(TimedAction&& Action, bool CallI
     auto& action = renderActions.emplace_back(std::move(Action));
     action.id = GetNextHandle();
 
-    if (CallImmediately && action.action)
+    if (CallImmediately && Game::Get().InRenderPhase() && action.action)
     {
         action.action(action.lifetime.getElapsedTime(),
             action.lifetime.getElapsedTime(),

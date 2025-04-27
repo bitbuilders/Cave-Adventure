@@ -310,9 +310,11 @@ void InputViewer::ShowInputViewer()
     ImGui::EndGroup();
     ImGui::SameLine();
 
+    auto logo = controls.GetGamepadType(KBM_PLAYER) == GamepadType::PS5 ? ICON_FA_PLAYSTATION : ICON_FA_XBOX;
+
     ImGui::Selectable(ICON_FA_CIRCLE_DOT, controls.GetPressedState(GamepadButton::Special, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::SameLine();
-    ImGui::Selectable(ICON_FA_XBOX, controls.GetPressedState(GamepadButton::Logo, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
+    ImGui::Selectable(logo, controls.GetPressedState(GamepadButton::Logo, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::SameLine();
     ImGui::Selectable(ICON_FA_GRIP_LINES, controls.GetPressedState(GamepadButton::Menu, PressedInputType::Down), ImGuiSelectableFlags_None, {buttonSize, buttonSize});
     ImGui::SameLine();

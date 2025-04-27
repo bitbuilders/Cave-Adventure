@@ -155,6 +155,8 @@ void Game::Tick()
 
     currentDelta = frameClock.restart();
 
+    SetTickPhase(TickPhase::PreUpdate);
+
     ImGui::SFML::SetCurrentWindow(window);
     ImGui::SFML::Update(window, currentDelta);
 
@@ -164,6 +166,8 @@ void Game::Tick()
 
     window.clear();
 
+    SetTickPhase(TickPhase::PreRender);
+
     Render();
     ImGui::SFML::Render(window);
 
@@ -172,6 +176,8 @@ void Game::Tick()
 
 void Game::Update(const sf::Time& delta)
 {
+    SetTickPhase(TickPhase::Update);
+
     for (auto module : modules)
     {
         if (module->CanUpdate())
@@ -187,6 +193,10 @@ void Game::Update(const sf::Time& delta)
     console.Update(delta);
     ResetImGuiWindow();
 
+    ///////// Late update
+
+    SetTickPhase(TickPhase::LateUpdate);
+
     for (auto module : modules)
     {
         if (module->CanLateUpdate())
@@ -198,6 +208,8 @@ void Game::Update(const sf::Time& delta)
 
 void Game::Render()
 {
+    SetTickPhase(TickPhase::Render);
+
     for (auto module : modules)
     {
         if (module->CanRender())
@@ -216,7 +228,11 @@ void Game::Render()
 
     DrawDebug::Line({900.0f, 200.0f}, {700.0f, 900.0f}, sf::Color::Yellow);
 
-    DrawDebug::LineSegment({{450.0f, 400.0f}, {600.0f, 400.0f}, {600.0f, 800.0f}, {450.0f, 800.0f}, {400.0f, 400.0f}}, sf::Color::Red);
+    // DrawDebug::LineSegment({{450.0f, 400.0f}, {600.0f, 400.0f}, {600.0f, 800.0f}, {450.0f, 800.0f}, {400.0f, 400.0f}}, sf::Color::Red);
+
+    DrawDebug::Rect({400, 600}, {200, 50}, sf::Color::White, 10.0f);
+
+    DrawDebug::Circle({900, 900}, 400, sf::Color::Yellow, 20);
 
     console.Render();
 }
@@ -244,4 +260,19 @@ float Game::GetTime() const
 float Game::GetDeltaTime() const
 {
     return currentDelta.asSeconds();
+}
+
+TickPhase Game::GetTickPhase() const
+{
+    return phase;
+}
+
+bool Game::InRenderPhase() const
+{
+    return phase == TickPhase::Render || phase == TickPhase::PreRender;
+}
+
+void Game::SetTickPhase(TickPhase Phase)
+{
+    phase = Phase;
 }

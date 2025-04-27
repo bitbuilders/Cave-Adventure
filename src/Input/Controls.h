@@ -232,6 +232,8 @@ public:
 
     void SetGamepadType(int Player, GamepadType Type);
 
+    GamepadType GetGamepadType(int Player) const;
+
 public:
     Controls();
     ~Controls() override;

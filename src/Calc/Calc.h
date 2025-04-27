@@ -7,6 +7,8 @@
 #include <algorithm>
 
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include "imgui.h"
 
 #define PI std::numbers::pi_v<float>
 
@@ -47,6 +49,16 @@ namespace Math
         return Pow(X, 2.0f);
     }
 
+    inline sf::Vector2f Rotate(const sf::Vector2f& Vec, float Deg)
+    {
+        float cos = std::cosf(Deg * DEG_TO_RAD);
+        float sin = std::sinf(Deg * DEG_TO_RAD);
+
+        return
+        { Vec.x * cos - Vec.y * sin,
+            Vec.x * sin + Vec.y * cos };
+    }
+
     inline sf::Vector2f ClampMagnitude(const sf::Vector2f& Vec, float Magnitude)
     {
         const float length = Vec.lengthSquared();
@@ -63,6 +75,44 @@ namespace Math
         return Vec;
     }
 
+    inline float Lerp(float A, float B, float T)
+    {
+        return A + (B - A) * T;
+    }
+
+    inline int Lerp(int A, int B, float T)
+    {
+        return A + static_cast<int>(std::floorf(static_cast<float>(B - A) * T));
+    }
+
+    inline sf::Vector2f Lerp(const sf::Vector2f& A, const sf::Vector2f& B, float T)
+    {
+        auto x = Lerp(A.x, B.x, T);
+        auto y = Lerp(A.y, B.y, T);
+
+        return {x, y};
+    }
+
+    inline sf::Color Lerp(const sf::Color& A, const sf::Color& B, float T)
+    {
+        auto r = Lerp(A.r, B.r, T);
+        auto g = Lerp(A.g, B.g, T);
+        auto b = Lerp(A.b, B.b, T);
+        auto a = Lerp(A.a, B.a, T);
+
+        return sf::Color(r, g, b ,a);
+    }
+
+    inline ImVec4 Lerp(const ImVec4& A, const ImVec4& B, float T)
+    {
+        auto x = Lerp(A.x, B.x, T);
+        auto y = Lerp(A.y, B.y, T);
+        auto z = Lerp(A.z, B.z, T);
+        auto w = Lerp(A.w, B.w, T);
+
+        return ImVec4(x, y, z, w);
+    }
+
     inline float Clamp(float X, float Min, float Max)
     {
         return std::fmax(std::fmin(X, Max), Min);
@@ -76,6 +126,19 @@ namespace Math
     inline float Clamp01(float X)
     {
         return Clamp(X, 0.0f, 1.0f);
+    }
+
+    /* Map a value from one range (R1), to a new range (R2) */
+    inline float Map(float X, float R1Min, float R1Max, float R2Min, float R2Max)
+    {
+        if (NearlyEqual(R1Min, R1Max))
+        {
+            return X;
+        }
+
+        float r1Percent = (X - R1Min) / (R1Max - R1Min);
+
+        return Lerp(R2Min, R2Max, r1Percent);
     }
 
     constexpr bool IsBetweenIncl(int X, int Min, int Max)

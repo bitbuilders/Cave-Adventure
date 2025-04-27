@@ -13,6 +13,8 @@ public:
 
     virtual void LateUpdate(const sf::Time& Delta) = 0;
 
+    virtual void FixedUpdate(float FixedDelta) = 0;
+
     virtual void Render(sf::RenderWindow& Window) = 0;
 
     virtual void Poll(const sf::Event& Event) = 0;
@@ -20,6 +22,8 @@ public:
     virtual constexpr bool CanUpdate() = 0;
 
     virtual constexpr bool CanLateUpdate() = 0;
+
+    virtual constexpr bool CanFixedUpdate() = 0;
 
     virtual constexpr bool CanRender() = 0;
 

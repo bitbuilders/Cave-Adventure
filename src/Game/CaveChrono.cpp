@@ -2,7 +2,9 @@
 #include "CaveChrono.h"
 
 #include <algorithm>
+#include <chrono>
 
+#include "Calc.h"
 #include "Game.h"
 
 namespace Chrono
@@ -13,10 +15,10 @@ namespace Chrono
 TimedActionHandle TimedAction::currentHandle = 0;
 
 TimedAction::TimedAction() :
+    interval(0.0f),
     id(0)
 {
     lifetime.start();
-    interval.start();
 }
 
 sf::RenderWindow* TimedAction::GetWindow(sf::RenderWindow* Default) const
@@ -95,16 +97,33 @@ bool CaveChrono::CancelRenderAction(TimedActionHandle Handle)
 
 void CaveChrono::Update(const sf::Time& Delta)
 {
+    float deltaTime = Delta.asSeconds();
+
     for (auto& action : updateActions)
     {
-        auto interval = action.interval.getElapsedTime().asSeconds();
-        if ((action.rate <= 0.0f || interval >= action.rate - action.rateTolerance) ||
+        action.interval += deltaTime;
+        if ((action.rate <= 0.0f || action.interval >= action.rate - action.rateTolerance) ||
             (!action.infinite && action.duration <= 0.0f))
         {
-            sf::Time rate = action.interval.restart();
-            if (action.action)
+            if (action.interval >= action.rate && action.rate > 0.0f && !Math::NearlyZero(action.rate))
             {
-                action.action(rate, action.lifetime.getElapsedTime(), action.GetWindow(&Game::Get().GetWindow()));
+                sf::Time time(std::chrono::microseconds(static_cast<int64_t>(action.interval * 1000000)));
+                while (action.interval >= action.rate)
+                {
+                    action.interval -= action.rate;
+
+                    if (action.action)
+                    {
+                        action.action(time, action.lifetime.getElapsedTime(), action.GetWindow(&Game::Get().GetWindow()));
+                    }
+                }
+            }
+            else
+            {
+                if (action.action)
+                {
+                    action.action(Delta, action.lifetime.getElapsedTime(), action.GetWindow(&Game::Get().GetWindow()));
+                }
             }
         }
     }
@@ -120,16 +139,27 @@ void CaveChrono::Update(const sf::Time& Delta)
 
 void CaveChrono::Render(sf::RenderWindow& Window)
 {
+    float deltaTime = Game::Get().GetDeltaTime();
+
     for (auto& action : renderActions)
     {
-        auto interval = action.interval.getElapsedTime().asSeconds();
-        if ((action.rate <= 0.0f || interval >= action.rate - action.rateTolerance) ||
+        action.interval += deltaTime;
+        if ((action.rate <= 0.0f || action.interval >= action.rate - action.rateTolerance) ||
             (!action.infinite && action.duration <= 0.0f))
         {
-            sf::Time rate = action.interval.restart();
+            sf::Time time(std::chrono::microseconds(static_cast<int64_t>(action.interval * 1000000)));
+            if (action.rate > 0.0f)
+            {
+                action.interval = std::fmod(action.interval, action.rate);
+            }
+            else
+            {
+                action.interval = 0.0f;
+            }
+
             if (action.action)
             {
-                action.action(rate, action.lifetime.getElapsedTime(), action.GetWindow(&Window));
+                action.action(time, action.lifetime.getElapsedTime(), action.GetWindow(&Window));
             }
         }
     }

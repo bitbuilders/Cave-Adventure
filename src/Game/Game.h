@@ -62,7 +62,11 @@ public:
 
     void Update(const sf::Time& delta);
 
+    void FixedUpdate();
+
     void Render();
+
+    void LoadStartupModules();
 
     bool IsRunning() const;
 

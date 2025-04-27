@@ -29,9 +29,13 @@ add_executable(Adventure WIN32
         Input/InputViewer.h
         AssetLibrary/Font/IconsFontAwesome6.h
         AssetLibrary/Font/IconsFontAwesome6Brands.h
-        CaveRand.cpp
-        CaveRand.h)
-target_include_directories(Adventure PRIVATE Game Debug AssetLibrary AssetLibrary/Font Calc Input Random)
+        Random/CaveRand.cpp
+        Random/CaveRand.h
+        Game/GameConfig.cpp
+        Game/GameConfig.h
+        Physics/Collision.cpp
+        Physics/Collision.h)
+target_include_directories(Adventure PRIVATE Game Debug AssetLibrary AssetLibrary/Font Calc Input Random Graphics Physics)
 #set_target_properties(Adventure PROPERTIES CXX_STANDARD 23)
 target_compile_features(Adventure PUBLIC cxx_std_23)
 target_link_libraries(Adventure

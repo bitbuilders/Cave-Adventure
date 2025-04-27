@@ -10,6 +10,7 @@
 #include "Calc.h"
 #include "CaveRand.h"
 #include "Controls.h"
+#include "GameConfig.h"
 #include "Stats.h"
 
 Game* Game::game;
@@ -66,6 +67,8 @@ void Game::Init()
     int consoleY = window.getPosition().y + static_cast<int>(window.getSize().y) - 100;
     console.Init(0, {800u, 500u}, {consoleX, consoleY});
 
+    LoadStartupModules();
+
     TimedAction action;
     action.action = [](const sf::Time& delta, const sf::Time& lifetime, sf::RenderWindow* window)
     {
@@ -113,6 +116,18 @@ void Game::Init()
     };
 
     Controls::Get().ListenForAxis(axisCallback2);
+
+    TimedAction fixedUpdate;
+    fixedUpdate.infinite = true;
+    fixedUpdate.rate = GameConfig::FixedUpdateInterval;
+    fixedUpdate.action = [this](const sf::Time&, const sf::Time&, sf::RenderWindow*)
+    {
+        FixedUpdate();
+
+        SetTickPhase(TickPhase::Update); // Reset tick phase
+    };
+
+    CaveChrono::Get().TrackUpdateAction(std::move(fixedUpdate));
 }
 
 void Game::Shutdown()
@@ -206,6 +221,19 @@ void Game::Update(const sf::Time& delta)
     }
 }
 
+void Game::FixedUpdate()
+{
+    SetTickPhase(TickPhase::FixedUpdate);
+
+    for (auto module : modules)
+    {
+        if (module->CanFixedUpdate())
+        {
+            module->FixedUpdate(GameConfig::FixedUpdateInterval);
+        }
+    }
+}
+
 void Game::Render()
 {
     SetTickPhase(TickPhase::Render);
@@ -235,6 +263,16 @@ void Game::Render()
     DrawDebug::Circle({900, 900}, 400, sf::Color::Yellow, 20);
 
     console.Render();
+}
+
+void Game::LoadStartupModules()
+{
+    for (auto module : STARTUP_MODULES::Modules)
+    {
+        modules.push_back(module);
+    }
+
+    STARTUP_MODULES::Modules.clear();
 }
 
 bool Game::IsRunning() const
@@ -276,3 +314,8 @@ void Game::SetTickPhase(TickPhase Phase)
 {
     phase = Phase;
 }
+
+// namespace STARTUP_MODULES
+// {
+//     std::vector<Module*> Modules;
+// }

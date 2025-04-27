@@ -39,7 +39,7 @@ struct TimedAction
 private:
     sf::Clock lifetime;
 
-    sf::Clock interval;
+    float interval;
 
     TimedActionHandle id;
 

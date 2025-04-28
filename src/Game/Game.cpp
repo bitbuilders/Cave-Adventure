@@ -11,6 +11,7 @@
 #include "CaveRand.h"
 #include "Controls.h"
 #include "GameConfig.h"
+#include "ModuleContainer.h"
 #include "Stats.h"
 
 Game* Game::game;
@@ -67,8 +68,6 @@ void Game::Init()
     int consoleY = window.getPosition().y + static_cast<int>(window.getSize().y) - 100;
     console.Init(0, {800u, 500u}, {consoleX, consoleY});
 
-    LoadStartupModules();
-
     TimedAction action;
     action.action = [](const sf::Time& delta, const sf::Time& lifetime, sf::RenderWindow* window)
     {
@@ -76,9 +75,9 @@ void Game::Init()
     };
     // action.infinite = true;
     action.rate = 1.0f;
-    action.duration = 2.1f;
+    action.duration = 2.0f;
 
-    LoadModule<CaveChrono>("CaveChrono").TrackUpdateAction(std::move(action));
+    ModuleContainer::Get().LoadModule<CaveChrono>("CaveChrono").TrackUpdateAction(std::move(action));
 
     DrawDebug::Line({100.0f, 0.0f}, {100.0f, 300.0f}, sf::Color::Green, 3.0f, 3.0f);
 
@@ -87,7 +86,7 @@ void Game::Init()
     {
         LOG("This happened next frame!");
     };
-    LoadModule<CaveChrono>("CaveChrono").TrackUpdateAction(delay);
+    ModuleContainer::Get().LoadModule<CaveChrono>("CaveChrono").TrackUpdateAction(delay);
 
     LOG("This happened this frame!");
 
@@ -149,13 +148,7 @@ void Game::Tick()
     {
         ImGui::SFML::ProcessEvent(window, *event);
 
-        for (auto module : modules)
-        {
-            if (module->CanPoll())
-            {
-                module->Poll(*event);
-            }
-        }
+        ModuleContainer::Get().Poll(*event);
 
         if (event->is<sf::Event::Closed>())
         {
@@ -193,13 +186,7 @@ void Game::Update(const sf::Time& delta)
 {
     SetTickPhase(TickPhase::Update);
 
-    for (auto module : modules)
-    {
-        if (module->CanUpdate())
-        {
-            module->Update(delta);
-        }
-    }
+    ModuleContainer::Get().Update(delta);
 
     auto time = GetTime();
     temp.x = std::sin(time) * 200.0f + 200.0f;
@@ -212,39 +199,21 @@ void Game::Update(const sf::Time& delta)
 
     SetTickPhase(TickPhase::LateUpdate);
 
-    for (auto module : modules)
-    {
-        if (module->CanLateUpdate())
-        {
-            module->LateUpdate(delta);
-        }
-    }
+    ModuleContainer::Get().LateUpdate(delta);
 }
 
 void Game::FixedUpdate()
 {
     SetTickPhase(TickPhase::FixedUpdate);
 
-    for (auto module : modules)
-    {
-        if (module->CanFixedUpdate())
-        {
-            module->FixedUpdate(GameConfig::FixedUpdateInterval);
-        }
-    }
+    ModuleContainer::Get().FixedUpdate(GameConfig::FixedUpdateInterval);
 }
 
 void Game::Render()
 {
     SetTickPhase(TickPhase::Render);
 
-    for (auto module : modules)
-    {
-        if (module->CanRender())
-        {
-            module->Render(window);
-        }
-    }
+    ModuleContainer::Get().Render(window);
 
     auto square = sf::RectangleShape({200, 100});
     square.setFillColor(sf::Color::Magenta);
@@ -263,16 +232,6 @@ void Game::Render()
     DrawDebug::Circle({900, 900}, 400, sf::Color::Yellow, 20);
 
     console.Render();
-}
-
-void Game::LoadStartupModules()
-{
-    for (auto module : STARTUP_MODULES::Modules)
-    {
-        modules.push_back(module);
-    }
-
-    STARTUP_MODULES::Modules.clear();
 }
 
 bool Game::IsRunning() const
@@ -314,8 +273,3 @@ void Game::SetTickPhase(TickPhase Phase)
 {
     phase = Phase;
 }
-
-// namespace STARTUP_MODULES
-// {
-//     std::vector<Module*> Modules;
-// }

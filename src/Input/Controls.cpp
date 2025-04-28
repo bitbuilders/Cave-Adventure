@@ -9,13 +9,14 @@
 #include "Calc.h"
 #include "CaveGameInput.h"
 #include "InputViewer.h"
+#include "ModuleContainer.h"
 
 
 CallbackHandle Controls::currentHandle = 0;
 
 Controls& Controls::Get()
 {
-    return Game::Get().LoadModule<Controls>("Controls");
+    return ModuleContainer::Get().LoadModule<Controls>("Controls");
 }
 
 CallbackHandle Controls::ListenForPress(PressCallback& Callback)

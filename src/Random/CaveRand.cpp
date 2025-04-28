@@ -3,6 +3,7 @@
 
 #include "Calc.h"
 #include "Game.h"
+#include "ModuleContainer.h"
 
 float Mystery::Value(float Max)
 {
@@ -55,7 +56,7 @@ Mystery::Mystery(uint64_t Seed)
 
 CaveRand& CaveRand::Get()
 {
-    return Game::Get().LoadModule<CaveRand>("Random");
+    return ModuleContainer::Get().LoadModule<CaveRand>("Random");
 }
 
 float CaveRand::Value(float Max)

@@ -25,9 +25,6 @@ struct TimedAction
     /** <= 0 will call next tick only */
     float duration = 0.0f;
 
-    /** The action will be invoked if the time is within this tolerance */
-    float rateTolerance = 0.00001f;
-
     /** Will go until it is manually stopped (overrides duration) */
     bool infinite = false;
 

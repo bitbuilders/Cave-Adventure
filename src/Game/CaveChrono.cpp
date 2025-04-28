@@ -6,6 +6,7 @@
 
 #include "Calc.h"
 #include "Game.h"
+#include "ModuleContainer.h"
 
 namespace Chrono
 {
@@ -28,7 +29,7 @@ sf::RenderWindow* TimedAction::GetWindow(sf::RenderWindow* Default) const
 
 CaveChrono& CaveChrono::Get()
 {
-    return Game::Get().LoadModule<CaveChrono>("CaveChrono");
+    return ModuleContainer::Get().LoadModule<CaveChrono>("CaveChrono");
 }
 
 TimedActionHandle CaveChrono::TrackUpdateAction(TimedAction&& Action, bool CallImmediately)
@@ -102,7 +103,7 @@ void CaveChrono::Update(const sf::Time& Delta)
     for (auto& action : updateActions)
     {
         action.interval += deltaTime;
-        if ((action.rate <= 0.0f || action.interval >= action.rate - action.rateTolerance) ||
+        if ((action.rate <= 0.0f || action.interval >= action.rate) ||
             (!action.infinite && action.duration <= 0.0f))
         {
             if (action.interval >= action.rate && action.rate > 0.0f && !Math::NearlyZero(action.rate))
@@ -144,7 +145,7 @@ void CaveChrono::Render(sf::RenderWindow& Window)
     for (auto& action : renderActions)
     {
         action.interval += deltaTime;
-        if ((action.rate <= 0.0f || action.interval >= action.rate - action.rateTolerance) ||
+        if ((action.rate <= 0.0f || action.interval >= action.rate) ||
             (!action.infinite && action.duration <= 0.0f))
         {
             sf::Time time(std::chrono::microseconds(static_cast<int64_t>(action.interval * 1000000)));

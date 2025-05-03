@@ -8,7 +8,7 @@
 
 #include "Module.h"
 
-#define CREATE_STARTUP_MODULE(Class) StartupModule<Class> __##Class##StartupModule;
+#define MAKE_STARTUP_MODULE(Class) StartupModule<Class> __##Class##StartupModule;
 
 class ModuleContainer : public Tickable
 {
@@ -26,7 +26,11 @@ private:
 
     int moduleLoopCount = 0;
 
+    bool initialized = false;
+
 public:
+    void Init();
+
     template<class ModuleClass>
     void AddModule()
     {
@@ -35,13 +39,13 @@ public:
         if (moduleLoopCount > 0)
         {
             std::shared_ptr<ModuleClass> module = std::make_shared<ModuleClass>();
-            module->Init();
+            if (initialized) module->Init();
             asyncModules.push_back(std::move(module));
         }
         else
         {
             std::shared_ptr<ModuleClass> module = std::make_shared<ModuleClass>();
-            module->Init();
+            if (initialized) module->Init();
             modules.push_back(std::move(module));
         }
     }
@@ -54,24 +58,24 @@ public:
         modules.erase(removeAsyncModules.begin(), removeAsyncModules.end());
     }
 
-    Module* GetModule(const std::string& Name)
+    std::shared_ptr<Module> GetModule(const std::string& Name)
     {
         auto foundModule = std::ranges::find(modules, Name, &Module::GetName);
         if (foundModule == modules.end())
         {
             auto foundAsyncModule = std::ranges::find(asyncModules, Name, &Module::GetName);
-            return foundAsyncModule != asyncModules.end() ? foundAsyncModule->get() : nullptr;
+            return foundAsyncModule != asyncModules.end() ? *foundAsyncModule : nullptr;
         }
 
-        return foundModule->get();
+        return *foundModule;
     }
 
     template<class ModuleClass>
-    ModuleClass* GetModule(const std::string& Name)
+    std::shared_ptr<ModuleClass> GetModule(const std::string& Name)
     {
         static_assert(std::is_base_of_v<Module, ModuleClass>, "Template type is not a Module!");
 
-        return static_cast<ModuleClass*>(GetModule(Name));
+        return std::static_pointer_cast<ModuleClass>(GetModule(Name));
     }
 
     template<class ModuleClass>
@@ -79,7 +83,7 @@ public:
     {
         static_assert(std::is_base_of_v<Module, ModuleClass>, "Template type is not a Module!");
 
-        ModuleClass* foundModule = GetModule<ModuleClass>(Name);
+        std::shared_ptr<ModuleClass> foundModule = GetModule<ModuleClass>(Name);
         if (!foundModule)
         {
             AddModule<ModuleClass>();

@@ -6,7 +6,7 @@
 #include "GameConfig.h"
 #include "ModuleContainer.h"
 
-CREATE_STARTUP_MODULE(Collision)
+MAKE_STARTUP_MODULE(Collision)
 
 void Collision::Init()
 {

@@ -64,57 +64,11 @@ void Game::Init()
 
     LOG("Game Init");
 
-    int consoleX = window.getPosition().x - 100;
+    ModuleContainer::Get().Init();
+
+    int consoleX = window.getPosition().x - 800;
     int consoleY = window.getPosition().y + static_cast<int>(window.getSize().y) - 100;
     console.Init(0, {800u, 500u}, {consoleX, consoleY});
-
-    TimedAction action;
-    action.action = [](const sf::Time& delta, const sf::Time& lifetime, sf::RenderWindow* window)
-    {
-        LOG("Occasional log {}", delta.asSeconds());
-    };
-    // action.infinite = true;
-    action.rate = 1.0f;
-    action.duration = 2.0f;
-
-    ModuleContainer::Get().LoadModule<CaveChrono>("CaveChrono").TrackUpdateAction(std::move(action));
-
-    DrawDebug::Line({100.0f, 0.0f}, {100.0f, 300.0f}, sf::Color::Green, 3.0f, 3.0f);
-
-    TimedAction delay;
-    delay.action = [](const sf::Time&, const sf::Time&, sf::RenderWindow*)
-    {
-        LOG("This happened next frame!");
-    };
-    ModuleContainer::Get().LoadModule<CaveChrono>("CaveChrono").TrackUpdateAction(delay);
-
-    LOG("This happened this frame!");
-
-    PressCallback callback;
-    callback.mappings = {{sf::Keyboard::Key::T, PressedInputType::Down}};
-    callback.callback = [](int Player, PressedInputType::Type Input)
-    {
-        LOG("Callback for T held! {}", static_cast<int>(Input));
-    };
-
-    Controls::Get().ListenForPress(callback);
-
-    AxisCallback axisCallback;
-    axisCallback.mappings = {{MouseAxis::X}};
-    axisCallback.callback = [](int player, float NewValue, float OldValue)
-    {
-        // LOG("Mouse move X {}", NewValue - OldValue);
-    };
-
-    Controls::Get().ListenForAxis(axisCallback);
-    AxisCallback axisCallback2;
-    axisCallback2.mappings = {{GamepadAxis::RSY}};
-    axisCallback2.callback = [](int player, float NewValue, float OldValue)
-    {
-        // LOG("RSY callback {} <= {}", NewValue, OldValue);
-    };
-
-    Controls::Get().ListenForAxis(axisCallback2);
 
     TimedAction fixedUpdate;
     fixedUpdate.infinite = true;
@@ -125,7 +79,6 @@ void Game::Init()
 
         SetTickPhase(TickPhase::Update); // Reset tick phase
     };
-
     CaveChrono::Get().TrackUpdateAction(std::move(fixedUpdate));
 }
 
@@ -214,22 +167,6 @@ void Game::Render()
     SetTickPhase(TickPhase::Render);
 
     ModuleContainer::Get().Render(window);
-
-    auto square = sf::RectangleShape({200, 100});
-    square.setFillColor(sf::Color::Magenta);
-    square.setPosition(temp);
-
-    window.draw(square);
-
-    DrawDebug::LineSegment({{100.0f, 500.0f}, {200.0f, 500.0f}, { 400.0f, 700.0f}, { 600.0f, 700.0f} }, sf::Color::White, 10.0f);
-
-    DrawDebug::Line({900.0f, 200.0f}, {700.0f, 900.0f}, sf::Color::Yellow);
-
-    // DrawDebug::LineSegment({{450.0f, 400.0f}, {600.0f, 400.0f}, {600.0f, 800.0f}, {450.0f, 800.0f}, {400.0f, 400.0f}}, sf::Color::Red);
-
-    DrawDebug::Rect({400, 600}, {200, 50}, sf::Color::White, 10.0f);
-
-    DrawDebug::Circle({900, 900}, 400, sf::Color::Yellow, 20);
 
     console.Render();
 }

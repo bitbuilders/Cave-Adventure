@@ -8,7 +8,7 @@ class Module : public Tickable
 public:
     ~Module() override = default;
 
-    /** Called when a startup module is loaded by Game, or after a module is dynamically created during runtime (right after constructor) */
+    /** Called when a module is initialized, which can be at Game initialization (startup module) or right after module creation at runtime */
     virtual void Init() {}
 
     /// Tickable interface start

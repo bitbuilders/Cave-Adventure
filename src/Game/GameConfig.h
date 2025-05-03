@@ -11,7 +11,7 @@ class GameConfig
 {
 public:
     /** How often physics happens */
-    static constexpr float FixedUpdateInterval = 1.0f / 80.0f;
+    static constexpr float FixedUpdateInterval = 1.0f / 720.0f;
 
     /** Number of pixels to one unit */
     static constexpr float Bep = 100.0f;

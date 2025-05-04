@@ -80,6 +80,8 @@ void Game::Init()
         SetTickPhase(TickPhase::Update); // Reset tick phase
     };
     CaveChrono::Get().TrackUpdateAction(std::move(fixedUpdate));
+
+    effect.setPosition({500, 500});
 }
 
 void Game::Shutdown()
@@ -145,6 +147,10 @@ void Game::Update(const sf::Time& delta)
     temp.x = std::sin(time) * 200.0f + 200.0f;
     temp.y = std::cos(time) * 100.0f + 100.0f;
 
+    effect.Update(delta);
+    auto mousePos = sf::Mouse::getPosition(window);
+    effect.setPosition({mousePos.x * 1.0f, mousePos.y * 1.0f});
+
     console.Update(delta);
     ResetImGuiWindow();
 
@@ -167,6 +173,8 @@ void Game::Render()
     SetTickPhase(TickPhase::Render);
 
     ModuleContainer::Get().Render(window);
+
+    window.draw(effect);
 
     console.Render();
 }

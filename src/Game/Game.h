@@ -7,6 +7,7 @@
 
 #include "CaveChrono.h"
 #include "Console.h"
+#include "Effect.h"
 
 
 enum class TickPhase
@@ -44,6 +45,8 @@ private:
     sf::Vector2f temp;
 
     sf::RenderWindow window;
+
+    Effect effect;
 
 public:
     void Init();

@@ -82,3 +82,13 @@ sf::Vector2f CaveRand::InsideCircle(bool Normalize)
 
     return Math::Rotate({x, y}, angle);
 }
+
+sf::Color CaveRand::Color(uint8_t Min, bool Alpha)
+{
+    const uint8_t r = Range(Min, 255);
+    const uint8_t g = Range(Min, 255);
+    const uint8_t b = Range(Min, 255);
+    const uint8_t a = Alpha ? Range(Min, 255) : 255;
+
+    return { r, g, b, a };
+}

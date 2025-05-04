@@ -38,7 +38,9 @@ add_executable(Adventure WIN32
         Physics/Thing.cpp
         Physics/Thing.h
         Game/ModuleContainer.cpp
-        Game/ModuleContainer.h)
+        Game/ModuleContainer.h
+        Graphics/Effect.cpp
+        Graphics/Effect.h)
 target_include_directories(Adventure PRIVATE Game Debug AssetLibrary AssetLibrary/Font Calc Input Random Graphics Physics)
 #set_target_properties(Adventure PROPERTIES CXX_STANDARD 23)
 target_compile_features(Adventure PUBLIC cxx_std_23)

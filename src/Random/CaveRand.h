@@ -56,4 +56,7 @@ public:
 
     /* Return a random vector within a unit, or optionally normalized */
     sf::Vector2f InsideCircle(bool Normalize = false);
+
+    /* Return a random SFML color, if Alpha is false it will be 255 */
+    sf::Color Color(uint8_t Min = 0, bool Alpha = false);
 };

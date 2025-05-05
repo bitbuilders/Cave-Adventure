@@ -28,7 +28,7 @@ ScopedTimer::~ScopedTimer()
     }
     else
     {
-        LOG_STAT("{}Took {} micro seconds", label, delta.asMicroseconds());
+        LOG_STAT("{}Took {}μs", label, delta.asMicroseconds());
     }
 }
 

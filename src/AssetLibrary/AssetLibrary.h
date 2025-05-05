@@ -42,4 +42,8 @@ public:
      * @return true if success
      */
     static bool LoadFonts();
+
+    static std::string FromUtf8(const std::wstring& Utf8);
+
+    static std::wstring ToUtf8(const std::string& Text);
 };

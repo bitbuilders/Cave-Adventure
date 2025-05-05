@@ -11,6 +11,7 @@
 #include "InputViewer.h"
 #include "ModuleContainer.h"
 
+MAKE_STARTUP_MODULE(Controls)
 
 CallbackHandle Controls::currentHandle = 0;
 
@@ -309,7 +310,12 @@ GamepadType Controls::GetGamepadType(int Player) const
     return GamepadType::Other;
 }
 
-Controls::Controls()
+Controls::~Controls()
+{
+    Input::Shutdown();
+}
+
+void Controls::Init()
 {
     Input::Init();
 
@@ -339,11 +345,6 @@ Controls::Controls()
             gamepadAxes.emplace_back(static_cast<GamepadAxis>(i), player);
         }
     }
-}
-
-Controls::~Controls()
-{
-    Input::Shutdown();
 }
 
 void Controls::Update(const sf::Time& Delta)

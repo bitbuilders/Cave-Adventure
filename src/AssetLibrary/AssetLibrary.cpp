@@ -1,6 +1,7 @@
 ﻿
 #include "AssetLibrary.h"
 
+#include <codecvt>
 #include <imgui-SFML.h>
 
 #include "imgui.h"
@@ -38,7 +39,7 @@ bool AssetLibrary::LoadFonts()
 {
     auto io = ImGui::GetIO();
     io.Fonts->Clear();
-    io.Fonts->AddFontFromFileTTF(Fonts::Roboto::Regular.c_str(), Fonts::DefaultSize);
+    io.Fonts->AddFontFromFileTTF(Fonts::Roboto::Regular.c_str(), Fonts::DefaultSize, nullptr, io.Fonts->GetGlyphRangesGreek());
 
     constexpr auto faFontSize = Fonts::DefaultSize * 0.8f;
 
@@ -57,4 +58,17 @@ bool AssetLibrary::LoadFonts()
     Fonts::FontAwesome::LetterFont = io.Fonts->AddFontFromFileTTF(Fonts::FontAwesome::Solid.c_str(), faFontSize, &config);
 
     return ImGui::SFML::UpdateFontTexture();
+}
+
+std::string AssetLibrary::FromUtf8(const std::wstring& Utf8)
+{
+    // this is deprecated, and I probably don't care anymore because I added utf8 compiler option
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    return converter.to_bytes(Utf8);
+}
+
+std::wstring AssetLibrary::ToUtf8(const std::string& Text)
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    return converter.from_bytes(Text);
 }

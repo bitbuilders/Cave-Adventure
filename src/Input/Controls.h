@@ -235,8 +235,9 @@ public:
     GamepadType GetGamepadType(int Player) const;
 
 public:
-    Controls();
     ~Controls() override;
+
+    void Init() override;
 
     /// Module interface start
     constexpr std::string GetName() override { return "Controls"; }

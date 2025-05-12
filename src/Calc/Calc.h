@@ -39,6 +39,11 @@ namespace Math
         return std::fabs(A) < Tolerance;
     }
 
+    inline bool NearlyZero(const sf::Vector2f& Vec)
+    {
+        return NearlyZero(Vec.x) && NearlyZero(Vec.y);
+    }
+
     inline float Pow(float X, float Y)
     {
         return std::powf(X, Y);

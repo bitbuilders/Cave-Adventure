@@ -40,13 +40,7 @@ private:
 
     Console console;
 
-    sf::Music music;
-
-    sf::Vector2f temp;
-
     sf::RenderWindow window;
-
-    Effect effect;
 
 public:
     void Init();
@@ -71,7 +65,7 @@ public:
     /** Get the time since application start, in seconds (unaffected by time dilation) */
     float GetTime() const;
 
-    /** Get this frame's delta time */
+    /** Get this frame's delta time, if called during FixedUpdate phase it will always be the fixed timestep delta */
     float GetDeltaTime() const;
 
     TickPhase GetTickPhase() const;

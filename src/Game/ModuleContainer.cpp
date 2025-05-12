@@ -20,12 +20,14 @@ void ModuleContainer::Init()
 {
     initialized = true;
 
+    ++moduleLoopCount;
     for (auto module : modules)
     {
         LOG("Initializing startup module: {}", module->GetName());
 
         module->Init();
     }
+    --moduleLoopCount;
 }
 
 void ModuleContainer::Update(const sf::Time& Delta)

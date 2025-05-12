@@ -8,7 +8,12 @@
 
 #include "Module.h"
 
-#define MAKE_STARTUP_MODULE(Class) StartupModule<Class> __##Class##StartupModule;
+/**
+ * Define a module that will be automatically created at game launch.
+ *
+ * Use the Module's virtual Init() function for any setup. Avoid doing anything complex in the default constructor
+ */
+#define MAKE_STARTUP_MODULE(Class) namespace Startup { StartupModule<Class> __##Class##StartupModule; }
 
 class ModuleContainer : public Tickable
 {
